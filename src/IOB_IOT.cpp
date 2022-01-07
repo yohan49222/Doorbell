@@ -288,6 +288,7 @@ void IOB_IOT::SetUp()
     }
 #endif
 }
+
 #ifdef USE_MQTT
 void IOB_IOT::reconnectMQTT()
 {
@@ -362,7 +363,7 @@ void IOB_IOT::parseMqttMessage(char *topic, byte *message, unsigned int length)
         {
             int idx = root["idx"];
             int nvalue = root["nvalue"];
-            if (idx == 13)
+            if (idx == IdxDevice)
             {
                 IOB_IOTEventArgs e = IOB_IOTEventArgs(idx, nvalue);
                 IOB_IOT::getInstance()->changeStateEvent.fire(e);

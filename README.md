@@ -1,5 +1,5 @@
-#ifndef IOB_IOT_public_h 
-#define IOB_IOT_public_h 
+
+
 
 
 #define USE_WIFI    // Commente cette ligne si tu ne veut pas que ton module utilise le wifi
