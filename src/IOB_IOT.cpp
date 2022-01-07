@@ -71,8 +71,6 @@ IOB_IOT::IOB_IOT()
     ipDns = INADDR_NONE;
 #endif
     canUseIpFixe = ipFixe.isSet() && ipGateWay.isSet() && ipSubnet.isSet() && ipDns.isSet();
-#else
-    canUseIpFixe = false;
 #endif
 
 #ifdef USE_OTA
@@ -93,17 +91,7 @@ IOB_IOT::IOB_IOT()
 #endif
 
 #ifdef USE_HTTP
-#ifdef TOPICIN
-    TopicIn = definedString((String)TOPICIN) ? (String)TOPICIN : "domoticz/out";
-#else
-    TopicIn = "domoticz/out";
-#endif
 
-#ifdef TOPICOUT
-    TopicOut = definedString((String)TOPICOUT) ? ((String)TOPICOUT) : "domoticz/in";
-#else
-    TopicOut = "domoticz/in";
-#endif
 
 #ifdef DOMOTIC_SERVER
     DomoticzServerIp = IPAddress::isValid((String)DOMOTIC_SERVER) ? this->parsedIpFromString((String)DOMOTIC_SERVER) : INADDR_NONE;
@@ -132,6 +120,19 @@ IOB_IOT::IOB_IOT()
 #else
     MqttPort = 1883;
 #endif
+
+#ifdef TOPICIN
+    TopicIn = definedString((String)TOPICIN) ? (String)TOPICIN : "domoticz/out";
+#else
+    TopicIn = "domoticz/out";
+#endif
+
+#ifdef TOPICOUT
+    TopicOut = definedString((String)TOPICOUT) ? ((String)TOPICOUT) : "domoticz/in";
+#else
+    TopicOut = "domoticz/in";
+#endif
+
 
 #ifdef MQTT_LOGIN
     MqttLogin = definedString((String)MQTT_LOGIN) && !EqualString((String)MQTT_LOGIN, "login") ? (String)MQTT_LOGIN : emptyString;
@@ -163,7 +164,12 @@ void IOB_IOT::loop()
 
 #ifdef USE_WIFI
     unsigned long currentMillis = millis();
-    if (currentMillis - previousMillisMQTT >= intervalConnectMQTT)
+    if (currentMillis
+#ifdef USE_MQTT
+            - previousMillisMQTT >=
+        intervalConnectMQTT
+#endif
+    )
     {
         // Si l'objet est connecté au réseau, on effectue les tâches qui doivent l'être dans ce cas
         if (WiFi.isConnected())
@@ -193,11 +199,16 @@ void IOB_IOT::loop()
             ArduinoOTA.begin();
 #endif // USE_OTA
         }
+#ifdef USE_MQTT
         previousMillisMQTT = currentMillis;
+#endif
     }
 #endif
 
+#ifdef USE_WEBSERVER
     webServer.handleClient();
+#endif
+
 #ifdef USE_OTA
     ArduinoOTA.handle();
 #endif // USE_OTA
@@ -216,8 +227,11 @@ void IOB_IOT::SetUp()
     if (canUseWifi)
     {
         WiFi.mode(WIFI_STA);
+
+#ifdef USE_IPFIXE
         if (canUseIpFixe)
             WiFi.config(ipFixe, ipGateWay, ipSubnet, ipDns);
+#endif
 
         WiFi.setHostname(NomModule.c_str());
         WiFi.begin(Ssid, SsidPassword);
@@ -227,6 +241,7 @@ void IOB_IOT::SetUp()
         onDisConnectedHandler = WiFi.onStationModeDisconnected(IOB_IOT::onDisconnected);
     }
 
+#ifdef USE_OTA
     if (canUseOta)
     {
         ArduinoOTA.setHostname(OtaName.c_str());
@@ -252,6 +267,9 @@ void IOB_IOT::SetUp()
             else if (error == OTA_END_ERROR) Serial.println("End Failed"); });
         ArduinoOTA.begin();
     }
+#endif
+
+#ifdef USE_WEBSERVER
     if (canUseWebServer)
     {
         webServer.on("/switchOn", IOB_IOT::switchOn);
@@ -259,14 +277,18 @@ void IOB_IOT::SetUp()
         webServer.on("/DebugServeur", IOB_IOT::DebugServeur);
         webServer.begin();
     }
+#endif
+
+#ifdef USE_MQTT
     if (canUseMqtt)
     {
         MQTT_Client.setServer(MqttServerIp, MqttPort);
         MQTT_Client.setClient(espClient);
         MQTT_Client.setCallback(IOB_IOT::callbackMQTT);
     }
+#endif
 }
-
+#ifdef USE_MQTT
 void IOB_IOT::reconnectMQTT()
 {
 #ifdef USE_WIFI
@@ -353,10 +375,18 @@ void IOB_IOT::parseMqttMessage(char *topic, byte *message, unsigned int length)
     }
 }
 
+bool IOB_IOT::CanSendViaMqtt()
+{
+    return canUseMqtt && WiFi.isConnected() && MQTT_Client.connected();
+}
+
+#endif
+
 void IOB_IOT::SendData(String send, int sendVia)
 {
     if (sendVia == SendDataMethod::SENDBY_HTTP_ONLY)
     {
+#ifdef USE_HTTP
         httpClient.begin(espClient, send.c_str());
         int httpCode = 0;
         httpCode = httpClient.GET();
@@ -367,33 +397,39 @@ void IOB_IOT::SendData(String send, int sendVia)
         }
         httpClient.end();
         Serial.println("Message envoyé à Domoticz en HTTP");
+#endif
     }
     else if (sendVia == SendDataMethod::SENDBY_MQTT_ONLY)
     {
+#ifdef USE_MQTT
         MQTT_Client.publish(TopicOut.c_str(), send.c_str());
         Serial.println("Message envoyé à Domoticz en MQTT");
+#endif
     }
 }
 
-bool IOB_IOT::CanSendViaMqtt()
-{
-    return canUseMqtt && WiFi.isConnected() && MQTT_Client.connected();
-}
-
+#ifdef USE_HTTP
 bool IOB_IOT::CanSendViaHttp()
 {
     return canUseHttp && WiFi.isConnected();
 }
+#endif
 
 void IOB_IOT::SendData(String state)
 {
+#ifdef USE_MQTT
     if (CanSendViaMqtt())
     {
         String messJson;
         if (CreateJsonMessageForDomoticz(state, messJson))
             SendData(messJson, SendDataMethod::SENDBY_MQTT_ONLY);
+
+        return;
     }
-    else if (CanSendViaHttp())
+#endif
+
+#ifdef USE_HTTP
+    if (CanSendViaHttp())
     {
         String url;
         if (CreateHttpMessageForDomoticz(state, url))
@@ -403,14 +439,29 @@ void IOB_IOT::SendData(String state)
             SendData(url, SendDataMethod::SENDBY_HTTP_ONLY);
         }
     }
+#endif
 }
 
+#ifdef USE_WEBSERVER
 void IOB_IOT::switchOn()
 {
     Serial.println("Reception HTTP sur l'url /SWITCHON");
 
     IPAddress clientIp = IOB_IOT::getInstance()->webServer.client().remoteIP();
-    if (clientIp != IOB_IOT::getInstance()->DomoticzServerIp && clientIp != IOB_IOT::getInstance()->MqttServerIp)
+    if (
+#ifdef USE_HTTP
+        clientIp != IOB_IOT::getInstance()->DomoticzServerIp
+#else
+        true
+#endif
+        &&
+#ifdef USE_MQTT
+        clientIp != IOB_IOT::getInstance()->MqttServerIp
+#else
+        true
+#endif
+
+    )
     {
         IOB_IOT::getInstance()->SendData("On");
     }
@@ -427,7 +478,20 @@ void IOB_IOT::switchOff()
 {
     Serial.println("Reception HTTP sur l'url /SWITCHON");
     IPAddress clientIp = IOB_IOT::getInstance()->webServer.client().remoteIP();
-    if (clientIp != IOB_IOT::getInstance()->DomoticzServerIp && clientIp != IOB_IOT::getInstance()->MqttServerIp)
+    if (
+#ifdef USE_HTTP
+        clientIp != IOB_IOT::getInstance()->DomoticzServerIp
+#else
+        true
+#endif
+        &&
+#ifdef USE_MQTT
+        clientIp != IOB_IOT::getInstance()->MqttServerIp
+#else
+        true
+#endif
+
+    )
     {
         IOB_IOT::getInstance()->SendData("Off");
     }
@@ -448,6 +512,7 @@ void IOB_IOT::DebugServeur()
     if (IOB_IOT::getInstance()->CreateJsonMessageForDebug(messJson))
         IOB_IOT::getInstance()->webServer.send(200, "text/json", messJson);
 }
+#endif
 
 bool IOB_IOT::EqualString(String stest, String stestto)
 {
@@ -518,30 +583,43 @@ String IOB_IOT::getMqttPassword()
     return MqttPassword;
 }
 */
+#ifdef USE_WEBSERVER
 bool IOB_IOT::CreateJsonMessageForDebug(String &out)
 {
     StaticJsonBuffer<1024> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
 
-    // assigantion des variables.
+    // assigantion des variables
+
+#ifdef USE_IPFIXE
     root["ipFixe"] = ipFixe.toString();
     root["ipGateWay"] = ipGateWay.toString();
     root["ipSubnet"] = ipSubnet.toString();
     root["ipDns"] = ipDns.toString();
+#endif
+
+#ifdef USE_OTA
     root["OtaName"] = OtaName;
     root["OtaPassword"] = OtaPassword;
+#endif
+
     root["Ssid"] = Ssid;
     root["SsidPassword"] = SsidPassword;
     root["TopicIn"] = TopicIn;
     root["topicOut"] = TopicOut;
+#ifdef USE_HTTP
     root["DomoticzServer"] = DomoticzServerIp.toString();
     root["DomoticzPort"] = String(DomoticzServerPort);
+#endif
+
+#ifdef USE_MQTT
     root["MqttServer"] = MqttServerIp.toString();
     root["MqttPort"] = String(MqttPort);
     root["MqttLogin"] = MqttLogin;
     root["MqttPassword"] = MqttPassword;
     root["NomModule"] = NomModule;
     root["IdxDevice"] = String(IdxDevice);
+#endif
 
     String messageOut;
 
@@ -561,7 +639,9 @@ bool IOB_IOT::CreateJsonMessageForDebug(String &out)
     }
     return false;
 }
+#endif
 
+#ifdef USE_HTTP
 bool IOB_IOT::CreateHttpMessageForDomoticz(String state, String &out)
 {
     String url = "http://";
@@ -575,7 +655,9 @@ bool IOB_IOT::CreateHttpMessageForDomoticz(String state, String &out)
     out = url;
     return true;
 }
+#endif
 
+#ifdef USE_MQTT
 bool IOB_IOT::CreateJsonMessageForDomoticz(String state, String &out)
 {
     StaticJsonBuffer<256> jsonBuffer;
@@ -604,6 +686,8 @@ bool IOB_IOT::CreateJsonMessageForDomoticz(String state, String &out)
     }
     return false;
 }
+#endif
+
 
 void IOB_IOT::onConnected(const WiFiEventStationModeConnected &event)
 {

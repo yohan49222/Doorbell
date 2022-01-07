@@ -48,89 +48,68 @@ private:
     IPAddress ipGateWay;
     IPAddress ipSubnet;
     IPAddress ipDns;
+    bool canUseIpFixe = true;
 #endif
 
 #ifdef USE_OTA
     String OtaName;
     String OtaPassword;
+    bool canUseOta = true;
+    bool canUseOtaPassword = true;
 #endif
 
 #ifdef USE_HTTP
-    String TopicIn;
-    String TopicOut;
     IPAddress DomoticzServerIp;
     int DomoticzServerPort;
     HTTPClient httpClient;
+    bool canUseHttp = true;
+    bool CanSendViaHttp();
+    bool CreateHttpMessageForDomoticz(String state, String &out);
 #endif
 
-#ifdef USE_MQTT
+#ifdef USE_MQTT    
+    unsigned long previousMillisMQTT = 0;
+    unsigned long intervalConnectMQTT = 1000;
+    String TopicIn;
+    String TopicOut;
     IPAddress MqttServerIp;
     int MqttPort;
     String MqttLogin;
     String MqttPassword;
-
+    bool canUseMqtt = true;
+    bool canUseMqttSecure = true;
     void reconnectMQTT();
+    bool CanSendViaMqtt();
+    void parseMqttMessage(char *topic, byte *message, unsigned int length);
+    static void callbackMQTT(char *topic, byte *message, unsigned int length);
     PubSubClient MQTT_Client; //(config->getMqttServer().c_str(), config->getMqttPort(), callbackMQTT, espClient);
+    bool CreateJsonMessageForDomoticz(String state, String &out);
 #endif
 
 #ifdef USE_WEBSERVER
     int WebServerPort;
     ESP8266WebServer webServer;
+    bool canUseWebServer = true;
+    bool CreateJsonMessageForDebug(String &out);    
+    static void switchOn();
+    static void switchOff();
+    static void DebugServeur();
 #endif
 
     bool canUseWifi = true;
-    bool canUseIpFixe = true;
-    bool canUseMqtt = true;
-    bool canUseMqttSecure = true;
-    bool canUseHttp = true;
-    bool canUseOta = true;
-    bool canUseOtaPassword = true;
-    bool canUseWebServer = true;
 
-#else
-    bool canUseWifi = false;
-    bool canUseIpFixe = false;
-    bool canUseMqtt = false;
-    bool canUseMqttSecure = false;
-    bool canUseHttp = false;
-    bool canUseOta = false;
-    bool canUseOtaPassword = false;
-    bool canUseWebServer = false;
 #endif
-    unsigned long previousMillisMQTT = 0;
-    unsigned long intervalConnectMQTT = 1000;
+
     bool EqualString(String stest, String stestto);
     bool definedString(String stest);
     bool definedInt(const int itest);
     IPAddress parsedIpFromString(String sip);
     String generateRamdomModuleNane();
     void SendData(String send, int sendVia);
-    bool CanSendViaMqtt();
-    bool CanSendViaHttp();
-    void parseMqttMessage(char *topic, byte *message, unsigned int length);
+
     IOB_IOTEvent<IOB_IOTEventArgs> changeStateEvent;
 
-public:
-    static IOB_IOT *getInstance();
-    // IOB_IOT();
-    ~IOB_IOT();
-    void loop();
-    /*bool CanUseWifi();
-    bool CanUseMqtt();
-    bool CanUseMqttSecure();
-    bool CanUseHttp();*/
-    static void callbackMQTT(char *topic, byte *message, unsigned int length);
-    void SendData(String state);
-#ifdef USE_WIFI
-    void SetUp();
-
-    static void switchOn();
-    static void switchOff();
-    static void DebugServeur();
-
-    bool CreateJsonMessageForDebug(String &out);
-    bool CreateHttpMessageForDomoticz(String state, String &out);
-    bool CreateJsonMessageForDomoticz(String state, String &out);
+    
 
     static void onConnected(const WiFiEventStationModeConnected &event);
     static void onDisconnected(const WiFiEventStationModeDisconnected &event);
@@ -147,9 +126,14 @@ public:
         String getMqttLogin();
         String getMqttPassword();
     */
-
+public:
+    static IOB_IOT *getInstance();
+    // IOB_IOT();
+    ~IOB_IOT();
+    void loop();
+    void SetUp();
+    void SendData(String state);
     void OnRecevChangeState(std::function<void(IOB_IOTEventArgs &)> handler);
-#endif
 };
 
 #endif
