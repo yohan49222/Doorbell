@@ -5,7 +5,7 @@
 */
 
 #include "IOB_IOT.h"
-IOB_IOT *config = IOB_IOT::getInstance();
+IOB_IOT *iob = IOB_IOT::getInstance();
 
 #define RELAY_PIN 0	 // Numero de pin du relay
 #define BUTTON_PIN 2 // Numero de pin du boutton
@@ -37,7 +37,7 @@ void dingdong(bool sendOn, bool sendOff)
 	Serial.println("Process DINGDONG START");
 
 	if (sendOn)
-		config->SendData("On");
+		iob->SendData("On");
 
 	digitalWrite(RELAY_PIN, NCORNO ? LOW : HIGH);
 	delay(200);
@@ -45,7 +45,7 @@ void dingdong(bool sendOn, bool sendOff)
 	delay(1000);
 
 	if (sendOff)
-		config->SendData("Off");
+		iob->SendData("Off");
 
 	Serial.println("Process DINGDONG END");
 }
@@ -74,13 +74,13 @@ void setup()
 
 	attachInterrupt(BUTTON_PIN, buttonpressed, FALLING);
 
-	config->SetUp();
-	config->OnRecevChangeState(ChangeState);
+	iob->Run();
+	iob->OnRecevChangeState(ChangeState);
 }
 
 void loop()
 {
-	config->loop();
+	iob->Loop();
 
 	if (button_count >= 5)
 	{

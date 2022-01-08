@@ -22,9 +22,29 @@
 
 #include "IOB_IOTEvent.h"
 
-#define DEBUG false
-#define LOG(line) { if(DEBUG) { Serial.print(line); } }
-#define LOGLN(line) { if(DEBUG) { Serial.println(line); } }
+#define DEBUG true
+#define LOG(line)               \
+    {                           \
+        if (DEBUG)              \
+        {                       \
+            Serial.print(line); \
+        }                       \
+    }
+#define LOGLN(line)               \
+    {                             \
+        if (DEBUG)                \
+        {                         \
+            Serial.println(line); \
+        }                         \
+    }
+#define LOGINLINE(line, var)     \
+    {                            \
+        if (DEBUG)               \
+        {                        \
+            Serial.print(line);  \
+            Serial.println(var); \
+        }                        \
+    }
 
 enum SendDataMethod : int
 {
@@ -45,6 +65,7 @@ private:
     int IdxDevice;
     String Ssid;
     String SsidPassword;
+    bool canUseWifi = true;
     WiFiClient espClient;
 
 #ifdef USE_IPFIXE
@@ -53,14 +74,14 @@ private:
     IPAddress ipSubnet;
     IPAddress ipDns;
     bool canUseIpFixe = true;
-#endif
+#endif /* USE_IPFIXE */
 
 #ifdef USE_OTA
     String OtaName;
     String OtaPassword;
     bool canUseOta = true;
     bool canUseOtaPassword = true;
-#endif
+#endif /* USE_OTA */
 
 #ifdef USE_HTTP
     IPAddress DomoticzServerIp;
@@ -69,9 +90,9 @@ private:
     bool canUseHttp = true;
     bool CanSendViaHttp();
     bool CreateHttpMessageForDomoticz(String state, String &out);
-#endif
+#endif /* USE HTTP */
 
-#ifdef USE_MQTT    
+#ifdef USE_MQTT
     unsigned long previousMillisMQTT = 0;
     unsigned long intervalConnectMQTT = 1000;
     String TopicIn;
@@ -86,34 +107,21 @@ private:
     bool CanSendViaMqtt();
     void parseMqttMessage(char *topic, byte *message, unsigned int length);
     static void callbackMQTT(char *topic, byte *message, unsigned int length);
-    PubSubClient MQTT_Client; //(config->getMqttServer().c_str(), config->getMqttPort(), callbackMQTT, espClient);
+    PubSubClient MQTT_Client;
     bool CreateJsonMessageForDomoticz(String state, String &out);
-#endif
+#endif /* USE_MQTT */
 
 #ifdef USE_WEBSERVER
     int WebServerPort;
     ESP8266WebServer webServer;
     bool canUseWebServer = true;
-    bool CreateJsonMessageForDebug(String &out);    
+    bool CreateJsonMessageForDebug(String &out);
     static void switchOn();
     static void switchOff();
     static void DebugServeur();
-#endif
-
-    bool canUseWifi = true;
-
-#endif
-
-    bool EqualString(String stest, String stestto);
-    bool definedString(String stest);
-    bool definedInt(const int itest);
-    IPAddress parsedIpFromString(String sip);
-    String generateRamdomModuleNane();
-    void SendData(String send, int sendVia);
+#endif /* USE_WEBSERVER */
 
     IOB_IOTEvent<IOB_IOTEventArgs> changeStateEvent;
-
-    
 
     static void onConnected(const WiFiEventStationModeConnected &event);
     static void onDisconnected(const WiFiEventStationModeDisconnected &event);
@@ -122,23 +130,27 @@ private:
     WiFiEventHandler onConnectedHandler;
     WiFiEventHandler onGotIPHandler;
     WiFiEventHandler onDisConnectedHandler;
-    /*
-        String getMqttServer();
-        int getMqttPort();
-        String getTopicOut();
-        String getNomModule();
-        String getMqttLogin();
-        String getMqttPassword();
-    */
+
+    bool SendData(String send, int sendVia);
+
+#endif /* USE_WIFI */
+
+    bool EqualString(String stest, String stestto);
+    bool definedString(String stest);
+    bool definedInt(const int itest);
+    IPAddress parsedIpFromString(String sip);
+    String generateRamdomModuleNane();
+
 public:
     static IOB_IOT *getInstance();
     // IOB_IOT();
     ~IOB_IOT();
-    void loop();
-    void SetUp();
+    void Loop();
+    void Run();
+
     void SendData(String state);
     void SendData(int state);
     void OnRecevChangeState(std::function<void(IOB_IOTEventArgs &)> handler);
 };
 
-#endif
+#endif /* IOB_IOT_h */
