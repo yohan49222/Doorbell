@@ -2,12 +2,12 @@
 
 ## Firmware pour module relai esp01
 
-|Integation|Optionnel|Depend
-|WIFI       |yes    | Config    |Comment \#define USE_WIFI
-|OTA        |yes    | WIFI      |Comment \#define USE_OTA
-|WEBSERVER  |yes    | WIFI      |Comment \#define USE_WEBSERVER
-|MQTT       |yes    | WIFI      |Comment \#define USE_MQTT
-|HTTP       |yes    | WIFI      |Comment \#define USE_HTTP
+|   Integation|Optionnel|Depend
+|   WIFI       |    yes    |    Config    | Comment \#define USE_WIFI
+|   OTA        |    yes    |    WIFI      | Comment \#define USE_OTA
+|   WEBSERVER  |    yes    |    WIFI      | Comment \#define USE_WEBSERVER
+|   MQTT       |    yes    |    WIFI      | Comment \#define USE_MQTT
+|   HTTP       |    yes    |    WIFI      | Comment \#define USE_HTTP
 
 **HTTP**, Le protocole http sera utilisé sur le MQTT n'est pas disponible. 
 
