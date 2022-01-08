@@ -22,6 +22,10 @@
 
 #include "IOB_IOTEvent.h"
 
+#define DEBUG false
+#define LOG(line) { if(DEBUG) { Serial.print(line); } }
+#define LOGLN(line) { if(DEBUG) { Serial.println(line); } }
+
 enum SendDataMethod : int
 {
     SENDBY_HTTP_ONLY = 1,
@@ -133,6 +137,7 @@ public:
     void loop();
     void SetUp();
     void SendData(String state);
+    void SendData(int state);
     void OnRecevChangeState(std::function<void(IOB_IOTEventArgs &)> handler);
 };
 
