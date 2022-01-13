@@ -5,26 +5,8 @@
 */
 
 #include "IOB_IOT.h"
-IOB_IOT *iob = IOB_IOT::getInstance();
+IOB_IOT *iob = IOB_IOT::GetInstance();
 
-#define RELAY_PIN 0	 // Numero de pin du relay
-#define BUTTON_PIN 2 // Numero de pin du boutton
-#define NCORNO true	 // Configure l'etat initial du relai
-/**
-	Filtre anti-rebond (debouncer)
-*/
-#define DEBOUNCE_TIME 100
-volatile uint32_t DebounceTimer = 0;
-uint32_t button_count = 0;
-void IRAM_ATTR buttonpressed()
-{
-	if (millis() - DEBOUNCE_TIME >= DebounceTimer)
-	{
-		DebounceTimer = millis();
-		button_count += 1;
-		Serial.printf("Button has been pressed %u times\n", button_count);
-	}
-}
 
 /**
 	DINGDONG relay et Envois d'information a la domotic
@@ -50,8 +32,12 @@ void dingdong(bool sendOn, bool sendOff)
 	Serial.println("Process DINGDONG END");
 }
 
-void ChangeState(IOB_IOTEventArgs e)
-{
+void ChangeState(IOB_IOTMessageRecevedEventArgs e)
+{	
+	for( String s : e.MessageList())
+	{
+		Serial.println("["+e.Protocole()+"] " + s);
+	}
 	if (e.State() == 1)
 	{
 		dingdong(false,true);
@@ -60,6 +46,51 @@ void ChangeState(IOB_IOTEventArgs e)
 	{
 		digitalWrite(RELAY_PIN, NCORNO ? HIGH : LOW);
 	}
+	e.Handled(true);
+}
+
+void MessageSend(IOB_IOTMessageSendedEventArgs e)
+{
+	for( String s : e.MessageList())
+	{
+		Serial.println("["+e.Protocole()+"] " + s);
+	}
+}
+
+void WifiStateChanged(IOB_IOTWifiStateChangedEventArgs e)
+{
+	if(e.State() == 1)
+	{
+		Serial.println("[WIFI] Connecté");
+		for( String s : e.MessageList())
+		{
+			Serial.println("[WIFI] " + s);
+		}
+	}
+	
+	else
+	Serial.println("[WIFI] Déconnecter");
+}
+
+void MqttStateChanged(IOB_IOTMqttStateChangedEventArgs e)
+{
+	if(e.State() == 1)
+	{
+		Serial.println("[MQTT] Connecté");
+		for( String s : e.MessageList())
+		{
+			Serial.println("[MQTT] " + s);
+		}
+	}
+	
+	else
+	Serial.println("[MQTT] Déconnecter");
+}
+
+void ButtonPressed(IOB_IOTButtonPressedEventArgs e)
+{
+	dingdong(true, true);
+	e.Handled(true);
 }
 
 void setup()
@@ -67,25 +98,16 @@ void setup()
 	Serial.begin(115200L);
 	delay(200);
 
-	pinMode(RELAY_PIN, OUTPUT);
-	pinMode(BUTTON_PIN, INPUT_PULLUP);
-
-	digitalWrite(RELAY_PIN, NCORNO ? LOW : HIGH);
-
-	attachInterrupt(BUTTON_PIN, buttonpressed, FALLING);
+	iob->OnRecevChangeState(ChangeState);
+	iob->OnMessageSend(MessageSend);
+	iob->OnMqttStateChanged(MqttStateChanged);
+	iob->OnWifiStateChanged(WifiStateChanged);
+	iob->OnButtonPressed(ButtonPressed);
 
 	iob->Run();
-	iob->OnRecevChangeState(ChangeState);
 }
 
 void loop()
 {
 	iob->Loop();
-
-	if (button_count >= 5)
-	{
-		button_count = 0;
-		dingdong(true, true);
-		Serial.println("button pressed");
-	}
 } 

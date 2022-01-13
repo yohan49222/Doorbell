@@ -2,8 +2,8 @@
 #define IOB_IOT_h
 
 ///#include "IOB_IOT_public.h"
-#include "IOB_IOT_private.h"
-#include "wifi_config.h"
+//#include "IOB_IOT_private.h"
+//#include "wifi_config.h"
 
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
@@ -11,11 +11,9 @@
 #ifdef USE_WEBSERVER
 #include <ESP8266WebServer.h>
 #endif // USE_WEBSERVER
-
 #ifdef USE_HTTP
 #include <ESP8266HTTPClient.h>
 #endif
-
 #ifdef USE_MQTT
 #include <PubSubClient.h>
 #endif // USE_MQTT
@@ -61,10 +59,10 @@ private:
     IOB_IOT &operator=(const IOB_IOT &);
 
 #ifdef USE_WIFI
-    String NomModule;
-    int IdxDevice;
-    String Ssid;
-    String SsidPassword;
+    String nomModule;
+    int idxDevice;
+    String ssid;
+    String ssidPassword;
     bool canUseWifi = true;
     WiFiClient espClient;
 
@@ -77,15 +75,15 @@ private:
 #endif /* USE_IPFIXE */
 
 #ifdef USE_OTA
-    String OtaName;
-    String OtaPassword;
+    String otaName;
+    String otaPassword;
     bool canUseOta = true;
     bool canUseOtaPassword = true;
 #endif /* USE_OTA */
 
 #ifdef USE_HTTP
-    IPAddress DomoticzServerIp;
-    int DomoticzServerPort;
+    IPAddress domoticzServerIp;
+    int domoticzServerPort;
     HTTPClient httpClient;
     bool canUseHttp = true;
     bool CanSendViaHttp();
@@ -95,54 +93,70 @@ private:
 #ifdef USE_MQTT
     unsigned long previousMillisMQTT = 0;
     unsigned long intervalConnectMQTT = 1000;
-    String TopicIn;
-    String TopicOut;
-    IPAddress MqttServerIp;
-    int MqttPort;
-    String MqttLogin;
-    String MqttPassword;
+    String topicIn;
+    String topicOut;
+    IPAddress mqttServerIp;
+    int mqttPort;
+    String mqttLogin;
+    String mqttPassword;
     bool canUseMqtt = true;
     bool canUseMqttSecure = true;
-    void reconnectMQTT();
+    void ReconnectMQTT();
     bool CanSendViaMqtt();
-    void parseMqttMessage(char *topic, byte *message, unsigned int length);
-    static void callbackMQTT(char *topic, byte *message, unsigned int length);
+    void ParseMqttMessage(char *topic, byte *message, unsigned int length);
+    static void CallbackMQTT(char *topic, byte *message, unsigned int length);
     PubSubClient MQTT_Client;
-    bool CreateJsonMessageForDomoticz(String state, String &out);
+
 #endif /* USE_MQTT */
 
 #ifdef USE_WEBSERVER
-    int WebServerPort;
     ESP8266WebServer webServer;
+    int webServerPort;
     bool canUseWebServer = true;
     bool CreateJsonMessageForDebug(String &out);
-    static void switchOn();
-    static void switchOff();
+    static void SwitchOn();
+    static void SwitchOff();
+    static void TraitRequestWeb(int state);
     static void DebugServeur();
 #endif /* USE_WEBSERVER */
 
-    IOB_IOTEvent<IOB_IOTEventArgs> changeStateEvent;
+    IOB_IOTEventHandler<IOB_IOTMessageRecevedEventArgs> changeStateEventHandler;
+    IOB_IOTEventHandler<IOB_IOTMessageSendedEventArgs> messageSendedEventHandler;
+    IOB_IOTEventHandler<IOB_IOTMqttStateChangedEventArgs> mqttStateChangedEventHandler;
+    IOB_IOTEventHandler<IOB_IOTWifiStateChangedEventArgs> wifiStateChangedEventHandler;
+    
 
-    static void onConnected(const WiFiEventStationModeConnected &event);
-    static void onDisconnected(const WiFiEventStationModeDisconnected &event);
-    static void onGotIP(const WiFiEventStationModeGotIP &event);
+    static void OnConnected(const WiFiEventStationModeConnected &event);
+    static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
+    static void OnGotIP(const WiFiEventStationModeGotIP &event);
 
     WiFiEventHandler onConnectedHandler;
     WiFiEventHandler onGotIPHandler;
     WiFiEventHandler onDisConnectedHandler;
 
-    bool SendData(String send, int sendVia);
-
+    bool SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &e);
+    bool CreateJsonMessageForDomoticz(String state, String &out);
 #endif /* USE_WIFI */
+    IOB_IOTEventHandler<IOB_IOTButtonPressedEventArgs> buttonPressedEventHandler;
+    int relayPin = 0;
+    int buttonPin = 2;
+    bool relayNcOrNo = true;
 
     bool EqualString(String stest, String stestto);
-    bool definedString(String stest);
-    bool definedInt(const int itest);
-    IPAddress parsedIpFromString(String sip);
-    String generateRamdomModuleNane();
+    bool DefinedString(String stest);
+    bool DefinedInt(const int itest);
+    IPAddress ParsedIpFromString(String sip);
+    String GenerateRamdomModuleNane();
+
+
+    volatile uint32_t debounceTimer = 0;
+    uint32_t debounceTime = 0;
+    uint32_t buttonPresseCountMax = 0;
+    uint32_t buttonPresseCount = 0;
+    static void IRAM_ATTR ButtonPressed();
 
 public:
-    static IOB_IOT *getInstance();
+    static IOB_IOT *GetInstance();
     // IOB_IOT();
     ~IOB_IOT();
     void Loop();
@@ -150,7 +164,13 @@ public:
 
     void SendData(String state);
     void SendData(int state);
-    void OnRecevChangeState(std::function<void(IOB_IOTEventArgs &)> handler);
+    void OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+    void OnRecevChangeState(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+    void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
+    void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
+
+
+    void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
 
 #endif /* IOB_IOT_h */
