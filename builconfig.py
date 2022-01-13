@@ -2,8 +2,6 @@ Import ("env")
 import os.path
 import json
 
-#print(env.Dump())
-
 def initialConf():
     file = open('config.json', 'w')
     content = """
@@ -146,7 +144,3 @@ if os.path.isfile('config.json'):
         print("Using WEBSERVER")
         env.Append(CPPDEFINES=[("USE_WEBSERVER")])
         env.Append(CPPDEFINES=[("WEBSERVER_PORT", int(conf["WEBSERVER"]["WEBSERVER_PORT"]) )])
-
-
-else: 
-    env.Append(CPPDEFINES=[("OTA_PASSWORD", "\\\"defaultPassword\\\"")])
