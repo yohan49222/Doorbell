@@ -1,6 +1,12 @@
-# relai esp01
+# *********************************************
+# *** Firmware pour module relay ESP01-S 1M ***
+# *********************************************
 ![](https://github.com/yohan49222/Doorbell/blob/main/images/relai%20esp01_.jpg) 
-## Firmware pour module relai esp01
+
+
+## !!! IMPORTANT : 
+Vous devez faire une premiere compilation de votre projet pour generer le fichier "config.json" .
+Vous devez ensuite editer ce meme fichier avec vos parametres
 
 |   Integation|Optionnel|Depend|
 | :------:|:-----:|:-----:|
@@ -10,6 +16,5 @@
 |   MQTT       |    yes    |    WIFI      | Comment \#define USE_MQTT   |
 |   HTTP       |    yes    |    WIFI      | Comment \#define USE_HTTP   |
 
-**HTTP**, Le protocole http sera utilisé sur le MQTT n'est pas disponible. 
+**HTTP**, Le protocole http sera utilisé si le MQTT n'est pas disponible. 
 
-voir fichier "IOB_IOT_public.h" pour la configuration
