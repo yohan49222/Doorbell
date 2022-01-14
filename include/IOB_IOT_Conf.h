@@ -1,7 +1,7 @@
 
 /**
-This File is used for dev. only
-overrided by buildconfig.py 
+Ce fichier est utilise pour le developpement seulement 
+les valeurs sont ajoutées par buildconfig.py a la compilation du projet
 */
 #ifndef IOB_IOT_Conf_h
 #define IOB_IOT_Conf_h
@@ -31,4 +31,4 @@ overrided by buildconfig.py
 #define DOMOTIC_PORT
 #define USE_WEBSERVER
 #define WEBSERVER_PORT
-#endif
+#endif /* IOB_IOT_Conf_h */

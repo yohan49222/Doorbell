@@ -1,13 +1,17 @@
 Import("env")
 import os.path
 import json
-import ipaddress
+#import ipaddress
 
+#
+# Creation du fichier include/IOB_IOT_Conf.h pour le developpement
+# #define sans valeur
+#
 def ConfigH():
     content = """
 /**
-This File is used for dev. only
-overrided by buildconfig.py 
+Ce fichier est utilise pour le developpement seulement 
+les valeurs sont ajoutées par buildconfig.py a la compilation du projet
 */
 #ifndef IOB_IOT_Conf_h
 #define IOB_IOT_Conf_h"""
@@ -29,11 +33,14 @@ overrided by buildconfig.py
             content += "\n#define " + tt[0]
             #content += "\n#endif"
     content += """
-#endif"""
+#endif /* IOB_IOT_Conf_h */"""
     fileH = open('include/IOB_IOT_Conf.h', 'w')
     fileH.write(content)
     fileH.close()
 
+#
+# Make default config.json
+#
 def initialConf():
     file = open('config.json', 'w')
     content = """
@@ -178,7 +185,11 @@ if os.path.isfile('config.json'):
             env.Append(CPPDEFINES=[("USE_WEBSERVER")])
             env.Append(CPPDEFINES=[("WEBSERVER_PORT", int(conf["WEBSERVER"]["WEBSERVER_PORT"]) )])
 
-
+#
+# Creation du fichier include/IOB_IOT_Conf_h
+#
 ConfigH()
 
+#
+# Ajoute IOB_IOT_Conf_h dans CPPDEFINES du compilateur ( !!! warning REDEFINE si absent !!! )
 env.Append(CPPDEFINES=[("IOB_IOT_Conf_h")])
