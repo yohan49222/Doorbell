@@ -1,9 +1,9 @@
 #ifndef IOB_IOT_h
 #define IOB_IOT_h
 
-///#include "IOB_IOT_public.h"
-//#include "IOB_IOT_private.h"
-//#include "wifi_config.h"
+#ifndef IOB_IOT_Conf_h
+#include "IOB_IOT_Conf.h"
+#endif
 
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>

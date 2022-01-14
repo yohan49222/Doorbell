@@ -397,21 +397,21 @@ void IOB_IOT::OnRecevChangeState(std::function<void(IOB_IOTMessageRecevedEventAr
 }
 void IOB_IOT::OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler)
 {
-    #ifdef USE_WIFI
+#ifdef USE_WIFI
     messageSendedEventHandler.setHandler(handler);
-    #endif /* USE_WIFI */
+#endif /* USE_WIFI */
 }
 void IOB_IOT::OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler)
 {
-    #ifdef USE_WIFI
+#ifdef USE_WIFI
     mqttStateChangedEventHandler.setHandler(handler);
-    #endif /* USE_WIFI */
+#endif /* USE_WIFI */
 }
 void IOB_IOT::OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler)
 {
-    #ifdef USE_WIFI
+#ifdef USE_WIFI
     wifiStateChangedEventHandler.setHandler(handler);
-    #endif /* USE_WIFI */
+#endif /* USE_WIFI */
 }
 void IOB_IOT::OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler)
 {
