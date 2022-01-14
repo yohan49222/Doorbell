@@ -1,7 +1,16 @@
 /*
- Bibliothéques nécessaires :
-  - pubsubclient : https://github.com/knolleary/pubsubclient
-  - ArduinoJson v5.13.3 : https://github.com/bblanchon/ArduinoJson
+	*********************************************
+	*** Firmware pour module relay ESP01-S 1M ***
+	*********************************************
+
+	!!! IMPORTANT : Vous devez faire une premiere compilation de votre projet 
+					pour generer le fichier "config.json" .
+
+					Vous devez ensuite editer ce meme fichier avec vos parametres
+
+	Bibliothéques nécessaires :
+		- pubsubclient : https://github.com/knolleary/pubsubclient
+		- ArduinoJson v5.13.3 : https://github.com/bblanchon/ArduinoJson
 */
 
 #include "IOB_IOT.h"

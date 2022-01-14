@@ -19,7 +19,7 @@ IOB_IOT::~IOB_IOT()
 
 IOB_IOT::IOB_IOT()
 {
-#ifdef IOB_IOT_RELAY_PIN
+#ifdef RELAY_PIN
     relayPin = DefinedInt(RELAY_PIN) ? RELAY_PIN : 0;
     pinMode(relayPin, OUTPUT);
 #else

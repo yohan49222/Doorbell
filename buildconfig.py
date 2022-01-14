@@ -8,32 +8,100 @@ import json
 # #define sans valeur
 #
 def ConfigH():
-    content = """
-/**
+    content = """/**
 Ce fichier est utilise pour le developpement seulement 
-les valeurs sont ajoutées par buildconfig.py a la compilation du projet
+les valeurs sont remplacees par buildconfig.py a la compilation du projet
 */
 #ifndef IOB_IOT_Conf_h
-#define IOB_IOT_Conf_h"""
+#define IOB_IOT_Conf_h
 
+#define RELAY_PIN 0 
+#define BUTTON_PIN 2 
+#define DEBOUNCE_TIME 100 
+#define BUTTON_PRESS_COUNT_MAX 5 
+#define IDXDEVICE 13 
+#define NOMMODULE "sonnette" 
+#define NCORNO true
 
-    for e in env['CPPDEFINES']:
-        txt = str(e)
-    
-        txt = txt.replace("('", "")
-        txt = txt.replace("', ", " ")
-        txt = txt.replace(")", " ")
-        txt = txt.replace("'\\\\\"", "\"")
-        txt = txt.replace("\\\\\"'", "\"")
-        txt = txt.replace("\"true\"", "true")
-        tt = txt.split(' ')
-        if tt[0].endswith("PASSWORD") == False:
-            #content += "\n#ifndef "
-            #content += tt[0]
-            content += "\n#define " + tt[0]
-            #content += "\n#endif"
+"""
+
+    lines = open('config.json', "r")
+    conf = json.loads(lines.read())
+
+    check = conf["USE_WIFI"]
+    if check and int(check) == 1:
+        content += """
+#define USE_WIFI
+#ifdef USE_WIFI
+
+    #define MYSSID "my_ssid" 
+    #define MYSSID_PASSWORD "my_ssid_password" """
+
+        check = conf["USE_OTA"]
+        if check and int(check) == 1:
+            content += """
+
+    #define USE_OTA
+    #ifdef USE_OTA
+        #define OTANAME "default"
+        #define OTAPASSWORD "password"
+    #endif /* USE_OTA */ """
+
+        check = conf["USE_IPFIXE"]
+        if check and int(check) == 1:
+            content += """
+
+    #define USE_IPFIXE
+    #ifdef USE_IPFIXE
+        #define IPFIXE "192.168.1.51" 
+        #define GATEWAY "192.168.1.1" 
+        #define SUBNET "255.255.255.0" 
+        #define DNS "192.168.1.1" 
+    #endif /* USE_IPFIXE */ """
+
+        check = conf["USE_MQTT"]
+        if check and int(check) == 1:
+            content += """
+
+    #define USE_MQTT
+    #ifdef USE_MQTT
+        #define MQTT_PORT 1883 
+        #define TOPICIN "domoticz/out" 
+        #define TOPICOUT "domoticz/in" 
+        #define MQTT_SERVER "192.168.1.2" 
+        #define MQTT_LOGIN "login"
+        #define MQTT_PASSWORD "password"
+    #endif /* USE_MQTT */ """
+
+        check = conf["USE_HTTP"]
+        if check and int(check) == 1:
+            content += """
+
+    #define USE_HTTP
+    #ifdef USE_HTTP
+        #define DOMOTIC_SERVER "192.168.1.2" 
+        #define DOMOTIC_PORT 8080 
+    #endif /* USE_HTTP */ """
+
+        check = conf["USE_WEBSERVER"]
+        if check and int(check) == 1:
+            content += """
+
+    #define USE_WEBSERVER
+    #ifdef USE_WEBSERVER
+        #define WEBSERVER_PORT 80
+    #endif /* USE_WEBSERVER */ """
+
+        check = conf["USE_WIFI"]
+        if check and int(check) == 1:
+            content += """
+
+#endif /* USE_WIFI */ """
+
     content += """
-#endif /* IOB_IOT_Conf_h */"""
+
+#endif /* IOB_IOT_Conf_h */ """
+
     fileH = open('include/IOB_IOT_Conf.h', 'w')
     fileH.write(content)
     fileH.close()
@@ -108,13 +176,12 @@ if os.path.isfile('config.json') == False:
 if os.path.isfile('config.json'):
     lines = open('config.json', "r")
     conf = json.loads(lines.read())
+    
+    keys = ["RELAY_PIN","BUTTON_PIN","DEBOUNCE_TIME","BUTTON_PRESS_COUNT_MAX","IDXDEVICE"]
+    for key in keys:
+        env.Append(CPPDEFINES=[(key, int(conf[key]))])
 
-    env.Append(CPPDEFINES=[("RELAY_PIN", int(conf["RELAY_PIN"]))])
-    env.Append(CPPDEFINES=[("BUTTON_PIN", int(conf["BUTTON_PIN"]))])
-    env.Append(CPPDEFINES=[("DEBOUNCE_TIME", int(conf["DEBOUNCE_TIME"]))])
-    env.Append(CPPDEFINES=[("BUTTON_PRESS_COUNT_MAX", int(conf["BUTTON_PRESS_COUNT_MAX"]))])
     env.Append(CPPDEFINES=[("NOMMODULE", "\\\"" + conf["NOMMODULE"] + "\\\"")])
-    env.Append(CPPDEFINES=[("IDXDEVICE", int(conf["IDXDEVICE"]))])
 
     check = conf["NCORNO"]
     if check and int(check) == 1:
@@ -135,6 +202,7 @@ if os.path.isfile('config.json'):
             print("\tUsing OTA")
             port = conf["OTA"]["OTAIP"]
             password = conf["OTA"]["OTAPASSWORD"]
+            env.Append(CPPDEFINES=[("OTANAME", "\\\"" + conf["OTA"]["OTANAME"] + "\\\"")])
             if len(port) > 0 and len(password):
                 env.Append(CPPDEFINES=[("USE_OTA")])
                 env.Append(CPPDEFINES=[("OTAPASSWORD", "\\\"" + password + "\\\"")])
@@ -152,23 +220,18 @@ if os.path.isfile('config.json'):
         if check and int(check) == 1:
             print("\tUsing IPFIXE")
             env.Append(CPPDEFINES=[("USE_IPFIXE")])
-            env.Append(CPPDEFINES=[("IPFIXE", "\\\"" + conf["IP"]["IPFIXE"] + "\\\"")])
-            env.Append(CPPDEFINES=[("GATEWAY", "\\\"" + conf["IP"]["GATEWAY"] + "\\\"")])
-            env.Append(CPPDEFINES=[("SUBNET", "\\\"" + conf["IP"]["SUBNET"] + "\\\"")])
-            env.Append(CPPDEFINES=[("DNS", "\\\"" + conf["IP"]["DNS"] + "\\\"")])
-            print("\tUsing IPFIXE ok")
-
+            keys = ["IPFIXE","GATEWAY","SUBNET","DNS"]
+            for key in keys:
+                env.Append(CPPDEFINES=[(key, "\\\"" + conf["IP"][key] + "\\\"")])
 
         check = conf["USE_MQTT"]
         if check and int(check) == 1:
             print("\tUsing USE_MQTT")
             env.Append(CPPDEFINES=[("USE_MQTT")])
-            env.Append(CPPDEFINES=[("TOPICIN", "\\\"" + conf["MQTT"]["TOPICIN"] + "\\\"")])
-            env.Append(CPPDEFINES=[("TOPICOUT", "\\\"" + conf["MQTT"]["TOPICOUT"] + "\\\"")])        
-            env.Append(CPPDEFINES=[("MQTT_SERVER", "\\\"" + conf["MQTT"]["MQTT_SERVER"] + "\\\"")])
             env.Append(CPPDEFINES=[("MQTT_PORT",  int(conf["MQTT"]["MQTT_PORT"]) )])
-            env.Append(CPPDEFINES=[("MQTT_LOGIN", "\\\"" + conf["MQTT"]["MQTT_LOGIN"] + "\\\"")])
-            env.Append(CPPDEFINES=[("MQTT_PASSWORD", "\\\"" + conf["MQTT"]["MQTT_PASSWORD"] + "\\\"")])
+            keys = ["TOPICIN","TOPICOUT","MQTT_SERVER","MQTT_LOGIN","MQTT_PASSWORD"]
+            for key in keys:
+                env.Append(CPPDEFINES=[(key, "\\\"" + conf["MQTT"][key] + "\\\"")])
 
         check = conf["USE_HTTP"]
         if check and int(check) == 1:
