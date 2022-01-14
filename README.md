@@ -17,3 +17,9 @@ Vous devez ensuite editer ce meme fichier avec vos parametres
 
 **HTTP**, Le protocole http sera utilisé si le MQTT n'est pas disponible. 
 
+## BUG PubSubCLient
+Editer PubSubClient.h et modifier :
+
+#define MQTT_MAX_PACKET_SIZE 256
+par 
+#define MQTT_MAX_PACKET_SIZE 512
