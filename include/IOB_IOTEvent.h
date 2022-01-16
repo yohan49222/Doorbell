@@ -35,6 +35,16 @@ public:
     _state = state;
     _protocole = protocole;
   }
+  IOB_IOTMessageSendedEventArgs(int idx, int state, String protocole, String message)
+  {
+    _state = 0;
+    AddMessage(message);
+  }
+  IOB_IOTMessageSendedEventArgs(int idx, int state, String protocole, std::vector<String> messages)
+  {
+    _state = 0;
+    AddMessages(messages);
+  }
   int Idx()
   {
     return _idx;
@@ -184,3 +194,18 @@ public:
     }
   }
 };
+
+
+enum SendDataMethod
+{
+    SENDBY_HTTP_ONLY = 1,
+    SENDBY_MQTT_ONLY = 2
+};
+
+typedef SendDataMethod SendData_t;
+
+typedef IOB_IOTEventHandler<IOB_IOTWifiStateChangedEventArgs> IOB_IOTWifiStateEventHandler;
+typedef IOB_IOTEventHandler<IOB_IOTMqttStateChangedEventArgs> IOB_IOTMqttStateEventHandler;
+typedef IOB_IOTEventHandler<IOB_IOTMessageSendedEventArgs> IOB_IOTMessageSendedventHandler;
+typedef IOB_IOTEventHandler<IOB_IOTMessageRecevedEventArgs> IOB_IOTMessageRecevedEventHandler;
+typedef IOB_IOTEventHandler<IOB_IOTButtonPressedEventArgs> IOB_IOTButtonPressedEventHandler;
