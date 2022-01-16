@@ -3,22 +3,37 @@
 
 #ifndef IOB_IOT_CONF_H
 #include "IOB_IOT_Conf.h"
-#endif
+#endif /* IOB_IOT_CONF_H */
+
+#ifdef USE_WIFI
 
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
 #ifdef USE_WEBSERVER
 #include <ESP8266WebServer.h>
-#endif // USE_WEBSERVER
+#endif /* USE_WEBSERVER */
 #ifdef USE_HTTP
 #include <ESP8266HTTPClient.h>
 #endif
 #ifdef USE_MQTT
 #include <PubSubClient.h>
-#endif // USE_MQTT
+#endif /* USE_MQTT */
 
+#else 
+#ifndef Arduino_h
+#include "Arduino.h"
+#include "IPAddress.h"
+#endif
+#endif /* USE_WIFI */
+
+#ifndef IOB_IOTEVENT_H
 #include "IOB_IOTEvent.h"
+#endif /* IOB_IOTEVENT_H */
+
+#ifndef IOB_IOTBUTTONPRESSED_H
+#include "IOB_IOTButtonPressed.h"
+#endif /* IOB_IOTBUTTONPRESSED_H */
 
 
 
@@ -127,6 +142,7 @@ public:
     void Run();
     void SendData(String state);
     
+
     void OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
     void OnRecevChangeState(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
     void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);

@@ -17,12 +17,12 @@ def initialConf():
         "BUTTON_PRESS_COUNT_MAX":"5",
         "NOMMODULE":"sonnette",
         "IDXDEVICE":"13",
-        "USE_MQTT":"1",
-        "USE_WEBSERVER":"1",
-        "USE_HTTP":"1",
-        "USE_IPFIXE":"1",
+        "USE_MQTT":"0",
+        "USE_WEBSERVER":"0",
+        "USE_HTTP":"0",
+        "USE_IPFIXE":"0",
         "USE_OTA":"0",
-        "USE_WIFI":"1",
+        "USE_WIFI":"0",
         "IP":
         {
             "IPFIXE":"192.168.1.51",

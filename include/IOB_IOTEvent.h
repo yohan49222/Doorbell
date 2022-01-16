@@ -1,25 +1,9 @@
-class IOB_IOTEventArg
-{
-private:
-  std::vector<String> _messageList;
+#ifndef IOB_IOTEVENT_H
+#define IOB_IOTEVENT_H
 
-public:
-  void AddMessage(String message)
-  {
-    _messageList.push_back(message);
-  }
-  void AddMessages(std::vector<String> messages)
-  {
-    for (String m : messages)
-    {
-      _messageList.push_back(m);
-    }
-  }
-  virtual std::vector<String> MessageList()
-  {
-    return _messageList;
-  }
-};
+#ifndef IOB_IOTEVENTARG_H
+#include "IOB_IOTEventArg.h"
+#endif /* IOB_IOTEVENTARG_H */
 
 class IOB_IOTMessageSendedEventArgs : public IOB_IOTEventArg
 {
@@ -35,7 +19,7 @@ public:
     _state = state;
     _protocole = protocole;
   }
-  IOB_IOTMessageSendedEventArgs(int idx, int state, String protocole, String message)
+  IOB_IOTMessageSendedEventArgs(int idx, int state, String protocole, String message) 
   {
     _state = 0;
     AddMessage(message);
@@ -86,21 +70,7 @@ public:
   }
 };
 
-class IOB_IOTButtonPressedEventArgs : public IOB_IOTEventArg
-{
-private:
-  bool _handled = false;
 
-public:
-  void Handled(bool handled)
-  {
-    _handled = handled;
-  }
-  bool Handled()
-  {
-    return _handled;
-  }
-};
 
 class IOB_IOTWifiStateChangedEventArgs : public IOB_IOTEventArg
 {
@@ -171,29 +141,7 @@ public:
   }
 };
 
-template <typename T>
-class IOB_IOTEventHandler
-{
-private:
-  std::function<void(T &)> m_EventHandlers = 0L;
 
-public:
-  IOB_IOTEventHandler()
-  {
-    m_EventHandlers = 0L;
-  }
-  void setHandler(std::function<void(T &)> handler)
-  {
-    m_EventHandlers = handler;
-  }
-  virtual void fire(T &args)
-  {
-    if (m_EventHandlers)
-    {
-      m_EventHandlers(args);
-    }
-  }
-};
 
 
 enum SendDataMethod
@@ -208,4 +156,6 @@ typedef IOB_IOTEventHandler<IOB_IOTWifiStateChangedEventArgs> IOB_IOTWifiStateEv
 typedef IOB_IOTEventHandler<IOB_IOTMqttStateChangedEventArgs> IOB_IOTMqttStateEventHandler;
 typedef IOB_IOTEventHandler<IOB_IOTMessageSendedEventArgs> IOB_IOTMessageSendedventHandler;
 typedef IOB_IOTEventHandler<IOB_IOTMessageRecevedEventArgs> IOB_IOTMessageRecevedEventHandler;
-typedef IOB_IOTEventHandler<IOB_IOTButtonPressedEventArgs> IOB_IOTButtonPressedEventHandler;
+
+
+#endif /* IOB_IOTEVENT_H */
