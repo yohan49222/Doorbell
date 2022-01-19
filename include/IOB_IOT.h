@@ -20,7 +20,7 @@
 #include <PubSubClient.h>
 #endif /* USE_MQTT */
 
-#else 
+#else
 #ifndef Arduino_h
 #include "Arduino.h"
 #include "IPAddress.h"
@@ -35,131 +35,153 @@
 #include "IOB_IOTButtonPressed.h"
 #endif /* IOB_IOTBUTTONPRESSED_H */
 
+struct IpConfig
+{
+     IPAddress ip = INADDR_NONE;
+     IPAddress gateWay = INADDR_NONE;
+     IPAddress subnet = INADDR_NONE;
+     IPAddress dns = INADDR_NONE;
+};
 
+struct OtaConfig
+{
+     String name = emptyString;
+     String password = emptyString;
+};
+struct WifiConfig
+{
+     String ssid = emptyString;
+     String password = emptyString;
+};
+struct MqttConfig
+{
+     unsigned long previousMillis = 0;
+     unsigned long intervalConnect = 1000;
+     String topicIn = emptyString;
+     String topicOut = emptyString;
+     IPAddress ip = INADDR_NONE;
+     uint32_t port = 1883;
+     String login = emptyString;
+     String password = emptyString;
+};
+
+struct IotConfig
+{
+     String nomModule = emptyString;
+     uint32_t idxDevice = 0;
+     uint32_t relayPin = 0;
+     uint32_t buttonPin = 2;
+     bool relayNcOrNo = true;
+     uint32_t debounceTime = 0;
+     uint32_t buttonPresseCountMax = 0;
+};
+
+struct DomoConfig
+{
+     IPAddress ip;
+     uint32_t port;
+};
 
 class IOB_IOT
 {
 private:
-    static IOB_IOT *inst_; // The one, single instance
-    IOB_IOT();
-    IOB_IOT(const IOB_IOT &);
-    IOB_IOT &operator=(const IOB_IOT &);
+     static IOB_IOT *inst_; // The one, single instance
+     IOB_IOT();
+     IOB_IOT(const IOB_IOT &);
+     IOB_IOT &operator=(const IOB_IOT &);
 
 #ifdef USE_WIFI
-
-    String nomModule;
-    uint32_t idxDevice;
-    String ssid;
-    String ssidPassword;
-    //bool canUseWifi = true;
-    WiFiClient espClient;
+     WifiConfig sConfigWifi;
+     IotConfig sConfigIot;
+     WiFiClient espClient;
 
 #ifdef USE_IPFIXE
-    IPAddress ipFixe;
-    IPAddress ipGateWay;
-    IPAddress ipSubnet;
-    IPAddress ipDns;
+     IpConfig sConfigIp;
 #endif /* USE_IPFIXE */
 
 #ifdef USE_OTA
-    String otaName;
-    String otaPassword;
+     OtaConfig sConfigOta;
 #endif /* USE_OTA */
 
 #ifdef USE_HTTP
-    IPAddress domoticzServerIp;
-    uint32_t domoticzServerPort;
-    HTTPClient httpClient;
-    bool CreateHttpMessageForDomoticz(String state, String &out);
+     DomoConfig sConfigDomo;
+     HTTPClient httpClient;
+     bool CreateHttpMessageForDomoticz(RelayState state, String &out);
 #endif /* USE HTTP */
 
 #ifdef USE_MQTT
-    unsigned long previousMillisMQTT = 0;
-    unsigned long intervalConnectMQTT = 1000;
-    String topicIn;
-    String topicOut;
-    IPAddress mqttServerIp;
-    uint32_t mqttPort;
-    String mqttLogin;
-    String mqttPassword;
-    void ReconnectMQTT();
-    void ParseMqttMessage(char *topic, byte *message, unsigned int length);
-    static void CallbackMQTT(char *topic, byte *message, unsigned int length);
-    PubSubClient MQTT_Client;
+     MqttConfig sConfigMqtt;
+     void ReconnectMQTT();
+     void ParseMqttMessage(char *topic, byte *message, unsigned int length);
+     static void CallbackMQTT(char *topic, byte *message, unsigned int length);
+     PubSubClient MQTT_Client;
 #endif /* USE_MQTT */
 
 #ifdef USE_WEBSERVER
-    ESP8266WebServer webServer;
-    unsigned int webServerPort;
-    bool CreateJsonMessageForDebug(String &out);
-    static void SwitchOn();
-    static void SwitchOff();
-    static void TraitRequestWeb(int state);
-    static void DebugServeur();
+     ESP8266WebServer webServer;
+     unsigned int webServerPort;
+     bool CreateJsonMessageForDebug(String &out);
+     static void SwitchOn();
+     static void SwitchOff();
+     static void TraitRequestWeb(RelayState state);
+     static void DebugServeur();
 #endif /* USE_WEBSERVER */
 
-    IOB_IOTMessageRecevedEventHandler changeStateEventHandler;
-    IOB_IOTMessageSendedventHandler messageSendedEventHandler;
-    IOB_IOTMqttStateEventHandler mqttStateChangedEventHandler;
-    IOB_IOTWifiStateEventHandler wifiStateChangedEventHandler;
-    
+     IOB_IOTMessageRecevedEventHandler messageRecepEventHandler;
+     IOB_IOTMessageSendedventHandler messageSendedEventHandler;
+     IOB_IOTMqttStateEventHandler mqttStateChangedEventHandler;
+     IOB_IOTWifiStateEventHandler wifiStateChangedEventHandler;
 
-    static void OnConnected(const WiFiEventStationModeConnected &event);
-    static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
-    static void OnGotIP(const WiFiEventStationModeGotIP &event);
+     static void OnConnected(const WiFiEventStationModeConnected &event);
+     static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
+     static void OnGotIP(const WiFiEventStationModeGotIP &event);
 
-    WiFiEventHandler onConnectedHandler;
-    WiFiEventHandler onGotIPHandler;
-    WiFiEventHandler onDisConnectedHandler;
+     WiFiEventHandler onConnectedHandler;
+     WiFiEventHandler onGotIPHandler;
+     WiFiEventHandler onDisConnectedHandler;
 
-    bool SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &e);
-    bool CreateJsonMessageForDomoticz(String state, String &out);
+     bool SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &e);
+     bool CreateJsonMessageForDomoticz(RelayState state, String &out);
 
 #endif /* USE_WIFI */
 
-    IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
-    uint32_t relayPin = 0;
-    uint32_t buttonPin = 2;
-    bool relayNcOrNo = true;
-
-    bool EqualString(String stest, String stestto);
-    bool DefinedString(String stest);
-    bool DefinedInt(const int itest);
-    IPAddress ParsedIpFromString(String sip);
-    String GenerateRamdomModuleNane();
+     IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
 
 
-    volatile uint32_t debounceTimer = 0;
-    uint32_t debounceTime = 0;
-    uint32_t buttonPresseCountMax = 0;
-    uint32_t buttonPresseCount = 0;
-    static void IRAM_ATTR ButtonPressed();
-void SendData(SendData_t state);
+     bool EqualString(String stest, String stestto);
+     bool DefinedString(String stest);
+     bool DefinedInt(const int itest);
+     IPAddress ParsedIpFromString(String sip);
+     String GenerateRamdomModuleNane();
+
+     volatile uint32_t debounceTimer = 0;
+
+     uint32_t buttonPresseCount = 0;
+     static void IRAM_ATTR ButtonPressed();
+     void SendData(RelayState state);
+
 public:
-    static IOB_IOT *GetInstance();
-    ~IOB_IOT();
-    void Loop();
-    void Run();
-    void SendData(String state);
-    
+     static IOB_IOT *GetInstance();
+     ~IOB_IOT();
+     void Loop();
+     void Run();
+     void SendData(String state);
 
-    void OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-    void OnRecevChangeState(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
-    void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
-    void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
+     void OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     void OnMessageRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+     void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
+     void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
 
-
-    void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
+     void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
 
-
-#define CANUSEWIFI ssid != emptyString && ssidPassword != emptyString
-#define CANUSEMQTT mqttServerIp.isSet() && idxDevice > 0
-#define CANUSEMQTTSECURE mqttLogin != emptyString && mqttPassword != emptyString && CANUSEMQTT
-#define CANSENDVIAMQTT CANUSEMQTT && WiFi.isConnected() && MQTT_Client.connected()
-#define CANUSEHTTP domoticzServerIp.isSet() && idxDevice > 0
+#define CANUSEWIFI sConfigWifi.ssid != emptyString && sConfigWifi.password != emptyString
+#define CANUSEMQTT sConfigMqtt.ip.isSet() && sConfigIot.idxDevice > 0
+#define CANUSEMQTTSECURE sConfigMqtt.login != emptyString && sConfigMqtt.password != emptyString && CANUSEMQTT
+#define CANSENDVIAMQTT CANUSEMQTT &&WiFi.isConnected() && MQTT_Client.connected()
+#define CANUSEHTTP sConfigDomo.ip.isSet() && sConfigIot.idxDevice > 0
 #define CANSENDVIAHTTP CANUSEHTTP && WiFi.isConnected()
-#define CANUSEOTASECURE otaPassword != emptyString
-#define CANUSEIPFIXE ipFixe.isSet() && ipGateWay.isSet() && ipSubnet.isSet() && ipDns.isSet()
+#define CANUSEOTASECURE sConfigOta.password != emptyString
+#define CANUSEIPFIXE sConfigIp.ip.isSet() && sConfigIp.gateWay.isSet() && sConfigIp.subnet.isSet() && sConfigIp.dns.isSet()
 
 #endif /* IOB_IOT_H */

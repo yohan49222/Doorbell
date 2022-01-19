@@ -11,6 +11,24 @@
 	Bibliothéques nécessaires :
 		- pubsubclient : https://github.com/knolleary/pubsubclient
 		- ArduinoJson v5.13.3 : https://github.com/bblanchon/ArduinoJson
+
+
+platform = espressif8266
+framework = arduino
+board = esp07s
+board_build.f_cpu = 160000000L
+board_build.flash_mode = qio
+board_build.ldscript = eagle.flash.1m64.ld
+extra_scripts = 
+	pre:preparefile.py
+	pre:buildconfig.py
+lib_deps = 
+	knolleary/PubSubClient@^2.8
+	bblanchon/ArduinoJson@5.13.3
+upload_speed = 921600
+monitor_speed = 115200
+
+
 */
 
 #include "IOB_IOT.h"
@@ -41,11 +59,11 @@ void dingdong(bool sendOn, bool sendOff)
 	Serial.println("Process DINGDONG END");
 }
 
-void ChangeState(IOB_IOTMessageRecevedEventArgs e)
+void MessageRecep(IOB_IOTMessageRecevedEventArgs e)
 {	
 	for( String s : e.MessageList())
 	{
-		Serial.println("["+e.Protocole()+"] " + s);
+		Serial.println("["+e.SendProtoleString()+"] " + s);
 	}
 	if (e.State() == 1)
 	{
@@ -62,7 +80,7 @@ void MessageSend(IOB_IOTMessageSendedEventArgs e)
 {
 	for( String s : e.MessageList())
 	{
-		Serial.println("["+e.Protocole()+"] " + s);
+		Serial.println("["+e.SendProtoleString()+"] " + s);
 	}
 }
 
@@ -107,7 +125,7 @@ void setup()
 	Serial.begin(115200L);
 	delay(200);
 
-	iob->OnRecevChangeState(ChangeState);
+	iob->OnMessageRecep(MessageRecep);
 	iob->OnMessageSend(MessageSend);
 	iob->OnMqttStateChanged(MqttStateChanged);
 	iob->OnWifiStateChanged(WifiStateChanged);

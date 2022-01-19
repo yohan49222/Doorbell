@@ -20,119 +20,85 @@ IOB_IOT::~IOB_IOT()
 IOB_IOT::IOB_IOT()
 {
 #ifdef RELAY_PIN
-    relayPin = DefinedInt(RELAY_PIN) ? RELAY_PIN : 0;
-    pinMode(relayPin, OUTPUT);
-#else
-    relayPin = 0;
-    pinMode(relayPin, OUTPUT);
+    sConfigIot.relayPin = DefinedInt(RELAY_PIN) ? RELAY_PIN : 0;
+    pinMode(sConfigIot.relayPin, OUTPUT);
 #endif
 
 #ifdef BUTTON_PIN
-    buttonPin = DefinedInt(BUTTON_PIN) ? BUTTON_PIN : 2;
-    pinMode(buttonPin, INPUT_PULLUP);
-#else
-    buttonPin = 2;
-    pinMode(buttonPin, INPUT_PULLUP);
+    sConfigIot.buttonPin = DefinedInt(BUTTON_PIN) ? BUTTON_PIN : 2;
+    pinMode(sConfigIot.buttonPin, INPUT_PULLUP);
 #endif
 
 #ifdef NCORNO
-    relayNcOrNo = NCORNO;
-#else
-    relayNcOrNo = true;
+    sConfigIot.relayNcOrNo = NCORNO;
 #endif
 
 #ifdef DEBOUNCE_TIME
-    debounceTime = DefinedInt(DEBOUNCE_TIME) ? DEBOUNCE_TIME : 100;
-#else
-    debounceTime = 100;
+    sConfigIot.debounceTime = DefinedInt(DEBOUNCE_TIME) ? DEBOUNCE_TIME : 100;
 #endif
 
 #ifdef BUTTON_PRESS_COUNT_MAX
-    buttonPresseCountMax = DefinedInt(BUTTON_PRESS_COUNT_MAX) ? BUTTON_PRESS_COUNT_MAX : 2;
-#else
-    buttonPresseCountMax = 5;
+    sConfigIot.buttonPresseCountMax = DefinedInt(BUTTON_PRESS_COUNT_MAX) ? BUTTON_PRESS_COUNT_MAX : 5;
 #endif
 
 #ifdef USE_WIFI
 
 #ifdef NOMMODULE
-    nomModule = DefinedString((String)NOMMODULE) && !EqualString((String)NOMMODULE, "default") ? (String)NOMMODULE : GenerateRamdomModuleNane();
-#else
-    nomModule = generateRamdomModuleNane();
+    sConfigIot.nomModule = DefinedString((String)NOMMODULE) && !EqualString((String)NOMMODULE, "default") ? (String)NOMMODULE : GenerateRamdomModuleNane();
 #endif
 
 #ifdef IDXDEVICE
-    idxDevice = IDXDEVICE;
-#else
-    idxDevice = 0;
+    sConfigIot.idxDevice = IDXDEVICE;
 #endif
 
 #ifdef MYSSID
-    ssid = DefinedString((String)MYSSID) && !EqualString((String)MYSSID, "my_ssid") ? (String)MYSSID : emptyString;
-#else
-    ssid = emptyString;
+    sConfigWifi.ssid = DefinedString((String)MYSSID) && !EqualString((String)MYSSID, "my_ssid") ? (String)MYSSID : emptyString;
 #endif
 
 #ifdef MYSSID_PASSWORD
-    ssidPassword = DefinedString((String)MYSSID_PASSWORD) && !EqualString((String)MYSSID_PASSWORD, "my_ssid_password") ? (String)MYSSID_PASSWORD : emptyString;
-#else
-    ssidPassword = emptyString;
+    sConfigWifi.password = DefinedString((String)MYSSID_PASSWORD) && !EqualString((String)MYSSID_PASSWORD, "my_ssid_password") ? (String)MYSSID_PASSWORD : emptyString;
 #endif
     
 
 #ifdef USE_IPFIXE
 #ifdef IPFIXE
-    ipFixe = IPAddress::isValid((String)IPFIXE) ? ParsedIpFromString((String)IPFIXE) : INADDR_NONE;
-#else
-    ipFixe = INADDR_NONE;
+    sConfigIp.ip = IPAddress::isValid((String)IPFIXE) ? ParsedIpFromString((String)IPFIXE) : INADDR_NONE;
 #endif
 
 #ifdef GATEWAY
-    ipGateWay = IPAddress::isValid((String)GATEWAY) ? ParsedIpFromString((String)GATEWAY) : INADDR_NONE;
-#else
-    ipGateWay = INADDR_NONE;
+    sConfigIp.gateWay = IPAddress::isValid((String)GATEWAY) ? ParsedIpFromString((String)GATEWAY) : INADDR_NONE;
 #endif
 
 #ifdef SUBNET
-    ipSubnet = IPAddress::isValid((String)SUBNET) ? ParsedIpFromString((String)SUBNET) : INADDR_NONE;
-#else
-    ipSubnet = INADDR_NONE;
+    sConfigIp.subnet = IPAddress::isValid((String)SUBNET) ? ParsedIpFromString((String)SUBNET) : INADDR_NONE;
 #endif
 
 #ifdef DNS
-    ipDns = IPAddress::isValid((String)DNS) ? ParsedIpFromString((String)DNS) : INADDR_NONE;
-#else
-    ipDns = INADDR_NONE;
+    sConfigIp.dns = IPAddress::isValid((String)DNS) ? ParsedIpFromString((String)DNS) : INADDR_NONE;
 #endif
 
 #endif
 
 #ifdef USE_OTA
 #ifdef OTANAME
-    otaName = DefinedString((String)OTANAME) && !EqualString((String)OTANAME, "default") ? (String)OTANAME : nomModule;
-#else
-    otaName = nomModule;
+    sConfigOta.name = DefinedString((String)OTANAME) && !EqualString((String)OTANAME, "default") ? (String)OTANAME : sConfigIot.nomModule;
 #endif
 
 #ifdef OTAPASSWORD
-    otaPassword = DefinedString((String)OTAPASSWORD) && !EqualString((String)OTAPASSWORD, "password") ? (String)OTAPASSWORD : emptyString;
-    // canUseOtaPassword = otaPassword != emptyString;
-#else
-    otaPassword = emptyString;
-    // canUseOtaPassword = false;
+    sConfigOta.password = DefinedString((String)OTAPASSWORD) && !EqualString((String)OTAPASSWORD, "password") ? (String)OTAPASSWORD : emptyString;
 #endif
 #endif
 
 #ifdef USE_HTTP
 
 #ifdef DOMOTIC_SERVER
-    domoticzServerIp = IPAddress::isValid((String)DOMOTIC_SERVER) ? this->ParsedIpFromString((String)DOMOTIC_SERVER) : INADDR_NONE;
+    sConfigDomo.ip = IPAddress::isValid((String)DOMOTIC_SERVER) ? this->ParsedIpFromString((String)DOMOTIC_SERVER) : INADDR_NONE;
 #else
     DomoticzServerIp = INADDR_NONE;
 #endif
 
 #ifdef DOMOTIC_PORT
-    domoticzServerPort = DefinedInt(DOMOTIC_PORT) ? DOMOTIC_PORT : 8080;
+    sConfigDomo.port = DefinedInt(DOMOTIC_PORT) ? DOMOTIC_PORT : 8080;
 #else
     domoticzServerPort = 8080;
 #endif
@@ -140,41 +106,29 @@ IOB_IOT::IOB_IOT()
 
 #ifdef USE_MQTT
 #ifdef MQTT_SERVER
-    mqttServerIp = IPAddress::isValid((String)MQTT_SERVER) ? this->ParsedIpFromString((String)MQTT_SERVER) : INADDR_NONE;
-#else
-    mqttServerIp = INADDR_NONE;
+    sConfigMqtt.ip = IPAddress::isValid((String)MQTT_SERVER) ? this->ParsedIpFromString((String)MQTT_SERVER) : INADDR_NONE;
 #endif
 
 #ifdef MQTT_PORT
-    mqttPort = DefinedInt(MQTT_PORT) ? MQTT_PORT : 1883;
-#else
-    mqttPort = 1883;
+    sConfigMqtt.port = DefinedInt(MQTT_PORT) ? MQTT_PORT : 1883;
 #endif
 
 #ifdef TOPICIN
-    topicIn = DefinedString((String)TOPICIN) ? (String)TOPICIN : "domoticz/out";
-#else
-    topicIn = "domoticz/out";
+    sConfigMqtt.topicIn = DefinedString((String)TOPICIN) ? (String)TOPICIN : "domoticz/out";
 #endif
 
 #ifdef TOPICOUT
-    topicOut = DefinedString((String)TOPICOUT) ? ((String)TOPICOUT) : "domoticz/in";
-#else
-    topicOut = "domoticz/in";
+    sConfigMqtt.topicOut = DefinedString((String)TOPICOUT) ? ((String)TOPICOUT) : "domoticz/in";
 #endif
 
 #ifdef MQTT_LOGIN
-    mqttLogin = DefinedString((String)MQTT_LOGIN) && !EqualString((String)MQTT_LOGIN, "login") ? (String)MQTT_LOGIN : emptyString;
-#else
-    mqttLogin = emptyString;
+    sConfigMqtt.login = DefinedString((String)MQTT_LOGIN) && !EqualString((String)MQTT_LOGIN, "login") ? (String)MQTT_LOGIN : emptyString;
+
 #endif
 
 #ifdef MQTT_PASSWORD
-    mqttPassword = DefinedString((String)MQTT_PASSWORD) && !EqualString((String)MQTT_PASSWORD, "password") ? (String)MQTT_PASSWORD : emptyString;
-#else
-    mqttPassword = emptyString;
+    sConfigMqtt.password = DefinedString((String)MQTT_PASSWORD) && !EqualString((String)MQTT_PASSWORD, "password") ? (String)MQTT_PASSWORD : emptyString;
 #endif
-    // canUseMqttSecure = mqttLogin != emptyString && mqttPassword != emptyString && canUseMqtt;
 #endif
 
 #ifdef USE_WEBSERVER
@@ -191,7 +145,7 @@ IOB_IOT::IOB_IOT()
 void IRAM_ATTR IOB_IOT::ButtonPressed()
 {
     IOB_IOT *inst = IOB_IOT::GetInstance();
-    if (millis() - inst->debounceTime >= inst->debounceTimer)
+    if (millis() - inst->sConfigIot.debounceTime >= inst->debounceTimer)
     {
         inst->debounceTimer = millis();
         inst->buttonPresseCount += 1;
@@ -238,9 +192,9 @@ String IOB_IOT::GenerateRamdomModuleNane()
  */
 void IOB_IOT::Run()
 {
-    digitalWrite(relayPin, relayNcOrNo ? HIGH : LOW);
+    digitalWrite(sConfigIot.relayPin, sConfigIot.relayNcOrNo ? HIGH : LOW);
 
-    attachInterrupt(buttonPin, IOB_IOT::ButtonPressed, FALLING);
+    attachInterrupt(sConfigIot.buttonPin, IOB_IOT::ButtonPressed, FALLING);
 
 #ifdef USE_WIFI
 
@@ -250,11 +204,11 @@ void IOB_IOT::Run()
 
 #ifdef USE_IPFIXE
         if ( CANUSEIPFIXE )
-            WiFi.config(ipFixe, ipGateWay, ipSubnet, ipDns);
+            WiFi.config(sConfigIp.ip, sConfigIp.gateWay, sConfigIp.subnet, sConfigIp.dns);
 #endif /* USE_IPFIXE */
 
-        WiFi.setHostname(nomModule.c_str());
-        WiFi.begin(ssid, ssidPassword);
+        WiFi.setHostname(sConfigIot.nomModule.c_str());
+        WiFi.begin(sConfigWifi.ssid, sConfigWifi.password);
 
         onConnectedHandler = WiFi.onStationModeConnected(IOB_IOT::OnConnected);
         onGotIPHandler = WiFi.onStationModeGotIP(IOB_IOT::OnGotIP);
@@ -263,9 +217,9 @@ void IOB_IOT::Run()
 
 #ifdef USE_OTA
 
-    ArduinoOTA.setHostname(otaName.c_str());
+    ArduinoOTA.setHostname(sConfigOta.name.c_str());
     if (CANUSEOTASECURE)
-        ArduinoOTA.setPassword(otaPassword.c_str());
+        ArduinoOTA.setPassword(sConfigOta.password.c_str());
 
     ArduinoOTA.onStart([]()
                        { Serial.println("Start"); });
@@ -298,7 +252,7 @@ void IOB_IOT::Run()
     if (CANUSEMQTT)
     {
         MQTT_Client.setBufferSize(512);
-        MQTT_Client.setServer(mqttServerIp, mqttPort);
+        MQTT_Client.setServer(sConfigMqtt.ip, sConfigMqtt.port);
         MQTT_Client.setClient(espClient);
         MQTT_Client.setCallback(IOB_IOT::CallbackMQTT);
     }
@@ -322,17 +276,17 @@ void IOB_IOT::Loop()
         unsigned long currentMillis = millis();
         if (CANUSEMQTT)
         {
-            if (!MQTT_Client.connected() && ((currentMillis - previousMillisMQTT) >= intervalConnectMQTT))
+            if (!MQTT_Client.connected() && ((currentMillis - sConfigMqtt.previousMillis) >= sConfigMqtt.intervalConnect))
             {
                 ReconnectMQTT();
-                previousMillisMQTT = currentMillis;
+                sConfigMqtt.previousMillis = currentMillis;
             }
             else if (MQTT_Client.connected())
             {
                 MQTT_Client.loop();
-                if ((currentMillis - previousMillisMQTT) >= intervalConnectMQTT)
+                if ((currentMillis - sConfigMqtt.previousMillis) >= sConfigMqtt.intervalConnect)
                 {
-                    previousMillisMQTT = currentMillis;
+                    sConfigMqtt.previousMillis = currentMillis;
                 }
             }
         }
@@ -357,16 +311,16 @@ void IOB_IOT::Loop()
 
 #endif /* USE_WIFI */
 
-    if (buttonPresseCount >= buttonPresseCountMax)
+    if (buttonPresseCount >= sConfigIot.buttonPresseCountMax)
     {
         buttonPresseCount = 0;
         IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs();
         buttonPressedEventHandler.fire(e);
         if (e.Handled())
         {
-            digitalWrite(relayPin, relayNcOrNo ? LOW : HIGH);
+            digitalWrite(sConfigIot.relayPin, sConfigIot.relayNcOrNo ? LOW : HIGH);
             delay(200);
-            digitalWrite(relayPin, relayNcOrNo ? HIGH : LOW);
+            digitalWrite(sConfigIot.relayPin, sConfigIot.relayNcOrNo ? HIGH : LOW);
         }
         Serial.println("button pressed");
     }
@@ -378,10 +332,10 @@ void IOB_IOT::Loop()
  *
  * @param handler void ChangeState(IOB_IOTEventArgs e) {}
  */
-void IOB_IOT::OnRecevChangeState(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler)
+void IOB_IOT::OnMessageRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler)
 {
 #ifdef USE_WIFI
-    changeStateEventHandler.setHandler(handler);
+    messageRecepEventHandler.setHandler(handler);
 #endif /* USE_WIFI */
 }
 
@@ -416,11 +370,11 @@ void IOB_IOT::OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &
  * @brief Envois le nouvel etat vers la domotique
  * en utilisant le protocole MQTT si disponible Ou le HTTP si connecté au Wifi
  *
- * @param state <int> 1 = On (aiutre = Off)
+ * @param state <int> 1 = On (autre = Off)
  */
-void IOB_IOT::SendData(SendData_t state)
+void IOB_IOT::SendData(String state)
 {
-    SendData(state == 1 ? "On" : "Off");
+    SendData(state ==  "On" ? RelayState::ON : RelayState::OFF);
 }
 
 /**
@@ -429,7 +383,7 @@ void IOB_IOT::SendData(SendData_t state)
  *
  * @param state <String> On | Off
  */
-void IOB_IOT::SendData(String state)
+void IOB_IOT::SendData(RelayState state)
 {
 #ifdef USE_WIFI
     bool sendSuccess = false;
@@ -440,7 +394,7 @@ void IOB_IOT::SendData(String state)
         String messJson;
         if (CreateJsonMessageForDomoticz(state, messJson))
         {
-            IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(idxDevice, 0, "MQTT", messJson);
+            IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(sConfigIot.idxDevice, state, SendProtole::MQTT, messJson);
             sendSuccess = SendData(messJson, SendDataMethod::SENDBY_MQTT_ONLY, e);
             messageSendedEventHandler.fire(e);
         }
@@ -455,7 +409,7 @@ void IOB_IOT::SendData(String state)
         String url;
         if (CreateHttpMessageForDomoticz(state, url))
         {
-            IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(idxDevice, 0, "HTTP", url);
+            IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(sConfigIot.idxDevice, state, SendProtole::HTTP, url);
             sendSuccess = SendData(url, SendDataMethod::SENDBY_HTTP_ONLY, e);
             messageSendedEventHandler.fire(e);
         }
@@ -526,7 +480,7 @@ bool IOB_IOT::SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &
 
 #ifdef USE_MQTT
 
-        sendSuccess = MQTT_Client.publish(topicOut.c_str(), send.c_str());
+        sendSuccess = MQTT_Client.publish(sConfigMqtt.topicOut.c_str(), send.c_str());
         e.AddMessage("Message envoyé à Domoticz en MQTT");
 
 #endif /* USE_MQTT */
@@ -534,7 +488,7 @@ bool IOB_IOT::SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &
     return sendSuccess;
 }
 
-bool IOB_IOT::CreateJsonMessageForDomoticz(String state, String &out)
+bool IOB_IOT::CreateJsonMessageForDomoticz(RelayState state, String &out)
 {
     StaticJsonBuffer<256> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
@@ -542,7 +496,7 @@ bool IOB_IOT::CreateJsonMessageForDomoticz(String state, String &out)
     // assigantion des variables.
     root["command"] = "switchlight";
     root["idx"] = IDXDEVICE;
-    root["switchcmd"] = state;
+    root["switchcmd"] = RelayStateConverter::toString(state);
 
     String messageOut;
 
@@ -575,37 +529,37 @@ bool IOB_IOT::CreateJsonMessageForDebug(String &out)
 
 #ifdef USE_IPFIXE
     JsonObject &root2 = jsonBuffer2.createObject();
-    root2["ipFixe"] = ipFixe.toString();
-    root2["ipGateWay"] = ipGateWay.toString();
-    root2["ipSubnet"] = ipSubnet.toString();
-    root2["ipDns"] = ipDns.toString();
+    root2["ipFixe"] = sConfigIp.ip.toString();
+    root2["ipGateWay"] = sConfigIp.gateWay.toString();
+    root2["ipSubnet"] = sConfigIp.subnet.toString();
+    root2["ipDns"] = sConfigIp.dns.toString();
     root["ip"] = root2;
 #endif
 
 #ifdef USE_OTA
     JsonObject &root3 = jsonBuffer2.createObject();
-    root3["OtaName"] = otaName;
-    root3["OtaPassword"] = otaPassword;
+    root3["OtaName"] = sConfigOta.name;
+    root3["OtaPassword"] = sConfigOta.password;
     root["ota"] = root3;
 #endif
 
-    root["Ssid"] = ssid;
-    root["SsidPassword"] = ssidPassword;
+    root["Ssid"] = sConfigWifi.ssid;
+    root["SsidPassword"] = sConfigWifi.password;
 
 #ifdef USE_HTTP
-    root["DomoticzServer"] = domoticzServerIp.toString();
-    root["DomoticzPort"] = String(domoticzServerPort);
+    root["DomoticzServer"] = sConfigDomo.ip.toString();
+    root["DomoticzPort"] = String(sConfigDomo.port);
 #endif
 
 #ifdef USE_MQTT
-    root["TopicIn"] = topicIn;
-    root["topicOut"] = topicOut;
-    root["MqttServer"] = mqttServerIp.toString();
-    root["MqttPort"] = String(mqttPort);
-    root["MqttLogin"] = mqttLogin;
-    root["MqttPassword"] = mqttPassword;
-    root["NomModule"] = nomModule;
-    root["IdxDevice"] = String(idxDevice);
+    root["TopicIn"] = sConfigMqtt.topicIn;
+    root["topicOut"] = sConfigMqtt.topicOut;
+    root["MqttServer"] = sConfigMqtt.ip.toString();
+    root["MqttPort"] = String(sConfigMqtt.port);
+    root["MqttLogin"] = sConfigMqtt.login;
+    root["MqttPassword"] = sConfigMqtt.password;
+    root["NomModule"] = sConfigIot.nomModule;
+    root["IdxDevice"] = String(sConfigIot.idxDevice);
 #endif
 
     String messageOut;
@@ -627,20 +581,20 @@ bool IOB_IOT::CreateJsonMessageForDebug(String &out)
     return false;
 }
 
-void IOB_IOT::TraitRequestWeb(int state)
+void IOB_IOT::TraitRequestWeb(RelayState state)
 {
     IPAddress clientIp = IOB_IOT::GetInstance()->webServer.client().remoteIP();
-    IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(IOB_IOT::GetInstance()->idxDevice, state, "WEBSERVER");
+    IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(IOB_IOT::GetInstance()->sConfigIot.idxDevice, state, SendProtole::WEBSERVER);
     e.AddMessage("Reception commande " + e.StateString() + " de " + clientIp.toString());
     if (
 #ifdef USE_HTTP
-        clientIp != IOB_IOT::GetInstance()->domoticzServerIp
+        clientIp != IOB_IOT::GetInstance()->sConfigDomo.ip
 #else
         true
 #endif
         &&
 #ifdef USE_MQTT
-        clientIp != IOB_IOT::GetInstance()->mqttServerIp
+        clientIp != IOB_IOT::GetInstance()->sConfigMqtt.ip
 #else
         true
 #endif
@@ -656,21 +610,21 @@ void IOB_IOT::TraitRequestWeb(int state)
     }
 
     String messJson;
-    if (IOB_IOT::GetInstance()->CreateJsonMessageForDomoticz(e.StateString(), messJson))
+    if (IOB_IOT::GetInstance()->CreateJsonMessageForDomoticz(e.State(), messJson))
         IOB_IOT::GetInstance()->webServer.send(200, "text/json", messJson);
 
     e.AddMessage("Envois de la reponse HTTP " + messJson);
-    IOB_IOT::GetInstance()->changeStateEventHandler.fire(e);
+    IOB_IOT::GetInstance()->messageRecepEventHandler.fire(e);
 }
 
 void IOB_IOT::SwitchOn()
 {
-    TraitRequestWeb(1);
+    TraitRequestWeb(RelayState::ON);
 }
 
 void IOB_IOT::SwitchOff()
 {
-    TraitRequestWeb(0);
+    TraitRequestWeb(RelayState::OFF);
 }
 
 void IOB_IOT::DebugServeur()
@@ -683,16 +637,16 @@ void IOB_IOT::DebugServeur()
 
 #ifdef USE_HTTP
 
-bool IOB_IOT::CreateHttpMessageForDomoticz(String state, String &out)
+bool IOB_IOT::CreateHttpMessageForDomoticz(RelayState state, String &out)
 {
     String url = "http://";
-    url += domoticzServerIp.toString();
+    url += sConfigDomo.ip.toString();
     url += ":";
-    url += domoticzServerPort;
+    url += sConfigDomo.port;
     url += "/json.htm?type=command&param=switchlight&idx=";
-    url += idxDevice;
+    url += sConfigIot.idxDevice;
     url += "&switchcmd=";
-    url += state.c_str();
+    url += RelayStateConverter::toString(state).c_str();
     out = url;
     return true;
 }
@@ -704,24 +658,24 @@ bool IOB_IOT::CreateHttpMessageForDomoticz(String state, String &out)
 void IOB_IOT::ReconnectMQTT()
 {
     IOB_IOTMqttStateChangedEventArgs e = IOB_IOTMqttStateChangedEventArgs();
-    if (CANUSEMQTTSECURE && MQTT_Client.connect(nomModule.c_str(), mqttLogin.c_str(), mqttPassword.c_str()))
+    if (CANUSEMQTTSECURE && MQTT_Client.connect(sConfigIot.nomModule.c_str(), sConfigMqtt.login.c_str(), sConfigMqtt.password.c_str()))
     {
         e.State(1);
         e.AddMessage("connecté avec login/password");
-        MQTT_Client.subscribe(topicIn.c_str());
+        MQTT_Client.subscribe(sConfigMqtt.topicIn.c_str());
         e.AddMessage("Ready , wait in/out message");
     }
-    else if (CANUSEMQTT && MQTT_Client.connect(nomModule.c_str()))
+    else if (CANUSEMQTT && MQTT_Client.connect(sConfigIot.nomModule.c_str()))
     {
         e.State(1);
         e.AddMessage("Connecté sans login/password");
-        MQTT_Client.subscribe(topicIn.c_str());
+        MQTT_Client.subscribe(sConfigMqtt.topicIn.c_str());
         e.AddMessage("Ready , wait in/out message");
     }
     else
     {
         e.AddMessage("Erreur, rc=" + String(MQTT_Client.state()));
-        e.AddMessage("Prochaine tentative dans (ms) : " + String(intervalConnectMQTT));
+        e.AddMessage("Prochaine tentative dans (ms) : " + String(sConfigMqtt.intervalConnect));
     }
     mqttStateChangedEventHandler.fire(e);
 }
@@ -736,7 +690,7 @@ void IOB_IOT::ParseMqttMessage(char *topic, byte *message, unsigned int length)
     // Message reçu du Broker.
     String string;
     // On vérifie qu'il vient bien de Domoticz.
-    int valeur = strcmp(topic, topicIn.c_str());
+    int valeur = strcmp(topic, sConfigMqtt.topicIn.c_str());
     if (valeur == 0)
     {
         for (unsigned int i = 0; i < length; i++)
@@ -750,21 +704,21 @@ void IOB_IOT::ParseMqttMessage(char *topic, byte *message, unsigned int length)
         {
             int idx = root["idx"];
             int nvalue = root["nvalue"];
-            if (idx == (int)idxDevice)
+            if (idx == (int)sConfigIot.idxDevice)
             {
-                IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(idx, nvalue, "MQTT");
+                IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(idx, RelayStateConverter::fromInt(nvalue) , SendProtole::MQTT);
                 e.AddMessage("Message arrivé [topic] : " + String(topic));
                 e.AddMessage("Recep " + String((nvalue == 1) ? "On" : "Off") + " ");
-                IOB_IOT::GetInstance()->changeStateEventHandler.fire(e);
+                IOB_IOT::GetInstance()->messageRecepEventHandler.fire(e);
                 if (!e.Handled())
                 {
                     if (nvalue == 1)
                     {
-                        digitalWrite(relayPin, relayNcOrNo ? LOW : HIGH);
+                        digitalWrite(sConfigIot.relayPin, sConfigIot.relayNcOrNo ? LOW : HIGH);
                     }
                     else
                     {
-                        digitalWrite(relayPin, relayNcOrNo ? HIGH : LOW);
+                        digitalWrite(sConfigIot.relayPin, sConfigIot.relayNcOrNo ? HIGH : LOW);
                     }
                 }
             }
