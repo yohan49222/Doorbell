@@ -1,89 +1,44 @@
 #ifndef IOB_IOT_H
 #define IOB_IOT_H
 
-#ifndef IOB_IOT_CONF_H
-#include "IOB_IOT_Conf.h"
-#endif /* IOB_IOT_CONF_H */
+#include "IOB_IOT/IOB_IOTMQTT.h"
+#include "IOB_IOT/IOB_IOTHTTP.h"
+#include "IOB_IOT/IOB_IOTOTA.h"
+#include "IOB_IOT/IOB_IOTWEBSERVER.h"
+#include "IOB_IOT/IotConfig.h"
 
-#ifdef USE_WIFI
-
-#include <ESP8266WiFi.h>
-#include <ArduinoJson.h>
-#include <ArduinoOTA.h>
-#ifdef USE_WEBSERVER
-#include <ESP8266WebServer.h>
-#endif /* USE_WEBSERVER */
-#ifdef USE_HTTP
-#include <ESP8266HTTPClient.h>
-#endif
-#ifdef USE_MQTT
-#include <PubSubClient.h>
-#endif /* USE_MQTT */
-
-#else
-#ifndef Arduino_h
-#include "Arduino.h"
-#include "IPAddress.h"
-#endif
-#endif /* USE_WIFI */
-
-#ifndef IOB_IOTEVENT_H
-#include "IOB_IOTEvent.h"
-#endif /* IOB_IOTEVENT_H */
-
-#ifndef IOB_IOTBUTTONPRESSED_H
-#include "IOB_IOTButtonPressed.h"
-#endif /* IOB_IOTBUTTONPRESSED_H */
-
-struct IpConfig
+class IOB_IOT : protected IOB_IOTHTTP, protected IOB_IOTMQTT, protected IOB_IOTOTA, protected IOB_IOTWEBSERVER
 {
-     IPAddress ip = INADDR_NONE;
-     IPAddress gateWay = INADDR_NONE;
-     IPAddress subnet = INADDR_NONE;
-     IPAddress dns = INADDR_NONE;
-};
+public:
+     /*
+     ok
+     */
+     using IOB_IOTMQTT::CanSendMqtt;
+     using IOB_IOTMQTT::CanUseMqtt;
+     using IOB_IOTMQTT::CanUseMqttSecure;
+     using IOB_IOTMQTT::CreateJsonMessageForDomoticz;
+     using IOB_IOTMQTT::get;
+     using IOB_IOTMQTT::init;
+     using IOB_IOTMQTT::LoopMqtt;
+     using IOB_IOTMQTT::mqtt_Recep_EventHandler;
+     using IOB_IOTMQTT::mqtt_Send_EventHandler;
+     using IOB_IOTMQTT::mqtt_State_Changed_EventHandler;
+     using IOB_IOTMQTT::ParseMqttMessage;
+     using IOB_IOTMQTT::ReconnectMQTT;
+     using IOB_IOTMQTT::Sendata;
+     /* a void */
+     using IOB_IOTHTTP::CreateHttpMessageForDomoticz;
+     using IOB_IOTHTTP::getDomotic;
+     using IOB_IOTHTTP::http_Send_EventHandler;
+     using IOB_IOTHTTP::Sendata;
 
-struct OtaConfig
-{
-     String name = emptyString;
-     String password = emptyString;
-};
-struct WifiConfig
-{
-     String ssid = emptyString;
-     String password = emptyString;
-};
-struct MqttConfig
-{
-     unsigned long previousMillis = 0;
-     unsigned long intervalConnect = 1000;
-     String topicIn = emptyString;
-     String topicOut = emptyString;
-     IPAddress ip = INADDR_NONE;
-     uint32_t port = 1883;
-     String login = emptyString;
-     String password = emptyString;
-};
+     using IOB_IOTWEBSERVER::CreateJsonMessageForDebug;
+     using IOB_IOTWEBSERVER::init;
+     using IOB_IOTWEBSERVER::Loop;
+     using IOB_IOTWEBSERVER::webServer;
+     using IOB_IOTWEBSERVER::webServer_Request_EventHandler;
+     using IOB_IOTWEBSERVER::webServer_Response_EventHandler;
 
-struct IotConfig
-{
-     String nomModule = emptyString;
-     uint32_t idxDevice = 0;
-     uint32_t relayPin = 0;
-     uint32_t buttonPin = 2;
-     bool relayNcOrNo = true;
-     uint32_t debounceTime = 0;
-     uint32_t buttonPresseCountMax = 0;
-};
-
-struct DomoConfig
-{
-     IPAddress ip;
-     uint32_t port;
-};
-
-class IOB_IOT
-{
 private:
      static IOB_IOT *inst_; // The one, single instance
      IOB_IOT();
@@ -91,45 +46,7 @@ private:
      IOB_IOT &operator=(const IOB_IOT &);
 
 #ifdef USE_WIFI
-     WifiConfig sConfigWifi;
-     IotConfig sConfigIot;
-     WiFiClient espClient;
 
-#ifdef USE_IPFIXE
-     IpConfig sConfigIp;
-#endif /* USE_IPFIXE */
-
-#ifdef USE_OTA
-     OtaConfig sConfigOta;
-#endif /* USE_OTA */
-
-#ifdef USE_HTTP
-     DomoConfig sConfigDomo;
-     HTTPClient httpClient;
-     bool CreateHttpMessageForDomoticz(RelayState state, String &out);
-#endif /* USE HTTP */
-
-#ifdef USE_MQTT
-     MqttConfig sConfigMqtt;
-     void ReconnectMQTT();
-     void ParseMqttMessage(char *topic, byte *message, unsigned int length);
-     static void CallbackMQTT(char *topic, byte *message, unsigned int length);
-     PubSubClient MQTT_Client;
-#endif /* USE_MQTT */
-
-#ifdef USE_WEBSERVER
-     ESP8266WebServer webServer;
-     unsigned int webServerPort;
-     bool CreateJsonMessageForDebug(String &out);
-     static void SwitchOn();
-     static void SwitchOff();
-     static void TraitRequestWeb(RelayState state);
-     static void DebugServeur();
-#endif /* USE_WEBSERVER */
-
-     IOB_IOTMessageRecevedEventHandler messageRecepEventHandler;
-     IOB_IOTMessageSendedventHandler messageSendedEventHandler;
-     IOB_IOTMqttStateEventHandler mqttStateChangedEventHandler;
      IOB_IOTWifiStateEventHandler wifiStateChangedEventHandler;
 
      static void OnConnected(const WiFiEventStationModeConnected &event);
@@ -141,47 +58,46 @@ private:
      WiFiEventHandler onDisConnectedHandler;
 
      bool SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &e);
-     bool CreateJsonMessageForDomoticz(RelayState state, String &out);
 
 #endif /* USE_WIFI */
 
+
      IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
-
-
-     bool EqualString(String stest, String stestto);
-     bool DefinedString(String stest);
-     bool DefinedInt(const int itest);
-     IPAddress ParsedIpFromString(String sip);
-     String GenerateRamdomModuleNane();
-
      volatile uint32_t debounceTimer = 0;
-
      uint32_t buttonPresseCount = 0;
      static void IRAM_ATTR ButtonPressed();
-     void SendData(RelayState state);
+     
 
 public:
      static IOB_IOT *GetInstance();
      ~IOB_IOT();
      void Loop();
      void Run();
+     IotConfig getConf();
      void SendData(String state);
+     void SendData(RelayState state);
+     WiFiClient espClient;
 
-     void OnMessageSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-     void OnMessageRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+
+     void OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     void OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
      void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
-     void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
 
+     void OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     void OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+
+     void OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+
+     void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
      void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
 
-#define CANUSEWIFI sConfigWifi.ssid != emptyString && sConfigWifi.password != emptyString
-#define CANUSEMQTT sConfigMqtt.ip.isSet() && sConfigIot.idxDevice > 0
-#define CANUSEMQTTSECURE sConfigMqtt.login != emptyString && sConfigMqtt.password != emptyString && CANUSEMQTT
-#define CANSENDVIAMQTT CANUSEMQTT &&WiFi.isConnected() && MQTT_Client.connected()
-#define CANUSEHTTP sConfigDomo.ip.isSet() && sConfigIot.idxDevice > 0
-#define CANSENDVIAHTTP CANUSEHTTP && WiFi.isConnected()
-#define CANUSEOTASECURE sConfigOta.password != emptyString
-#define CANUSEIPFIXE sConfigIp.ip.isSet() && sConfigIp.gateWay.isSet() && sConfigIp.subnet.isSet() && sConfigIp.dns.isSet()
+//#define CANUSEWIFI
+//#define CANUSEMQTT IOB_IOTMQTT::getMqttIp().isSet() && IOB_IOTMQTT::getIdx() > 0
+//#define CANUSEMQTTSECURE IOB_IOTMQTT::getMqtt(). != emptyString &&IOB_IOTMQTT::getMqttPassword() != emptyString &&CANUSEMQTT
+//#define CANSENDVIAMQTT
+//#define CANUSEHTTP IOB_IOTMQTT::getDomoIp().isSet() && IOB_IOTMQTT::get().getRequired().idxDevice > 0
+//#define CANSENDVIAHTTP CANUSEHTTP &&WiFi.isConnected()
+//#define CANUSEOTASECURE IOB_IOTMQTT::getConfigOta().password != emptyString
 
 #endif /* IOB_IOT_H */

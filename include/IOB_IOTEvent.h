@@ -4,11 +4,35 @@
 #ifndef IOB_IOTEVENTARG_H
 #include "IOB_IOTEventArg.h"
 #endif /* IOB_IOTEVENTARG_H */
+
+enum ConState
+{
+     DISCONNECETD = 0,
+     CONNECTED = 1,
+};
+
+class ConStateConverter
+{
+public:
+     static String toString(ConState s)
+     {
+          if (s == ConState::DISCONNECETD)
+               return "DISCONNECETD";
+
+          if (s == ConState::CONNECTED)
+               return "CONNECTED";
+
+          return "WEBSERVER";
+     }
+};
+
+
 enum SendDataMethod
 {
      SENDBY_MQTT_ONLY = 0,
      SENDBY_HTTP_ONLY = 1
 };
+
 enum SendProtole
 {
      HTTP = 1,
@@ -99,11 +123,15 @@ public:
      }
      IOB_IOTMessageSendedEventArgs(int idx, RelayState state, SendProtole protocole, String message) : IOB_IOTEventArg(message)
      {
+          _idx = idx;
           _state = state;
+          _protocole = protocole;
      }
      IOB_IOTMessageSendedEventArgs(int idx, RelayState state, SendProtole protocole, std::vector<String> messages) : IOB_IOTEventArg(messages)
      {
+          _idx = idx;
           _state = state;
+          _protocole = protocole;
      }
      int Idx()
      {
@@ -147,11 +175,15 @@ public:
      }
      IOB_IOTMessageRecevedEventArgs(int idx, RelayState state, SendProtole protocole, String message) : IOB_IOTEventArg(message)
      {
+          _idx = idx;
           _state = state;
+          _protocole = protocole;
      }
      IOB_IOTMessageRecevedEventArgs(int idx, RelayState state, SendProtole protocole, std::vector<String> messages) : IOB_IOTEventArg(messages)
      {
+          _idx = idx;
           _state = state;
+          _protocole = protocole;
      }
      int Idx()
      {
@@ -182,18 +214,17 @@ public:
 class IOB_IOTWifiStateChangedEventArgs : public IOB_IOTEventArg
 {
 private:
-     int _state;
+     ConState _state = ConState::DISCONNECETD;
 
 public:
      IOB_IOTWifiStateChangedEventArgs() : IOB_IOTEventArg()
      {
-          _state = 0;
      }
-     IOB_IOTWifiStateChangedEventArgs(int state) : IOB_IOTEventArg()
+     IOB_IOTWifiStateChangedEventArgs(ConState state) : IOB_IOTEventArg()
      {
           _state = state;
      }
-     IOB_IOTWifiStateChangedEventArgs(int state, String message) : IOB_IOTEventArg(message)
+     IOB_IOTWifiStateChangedEventArgs(ConState state, String message) : IOB_IOTEventArg(message)
      {
           _state = state;
      }
@@ -203,41 +234,48 @@ public:
      IOB_IOTWifiStateChangedEventArgs(std::vector<String> messages) : IOB_IOTEventArg(messages)
      {
      }
-     IOB_IOTWifiStateChangedEventArgs(int state, std::vector<String> messages) : IOB_IOTEventArg(messages)
+     IOB_IOTWifiStateChangedEventArgs(ConState state, std::vector<String> messages) : IOB_IOTEventArg(messages)
      {
           _state = state;
      }
-     int State()
+     ConState State()
      {
           return _state;
+     }
+     String StateString()
+     {
+          return ConStateConverter::toString(_state);
      }
 };
 
 class IOB_IOTMqttStateChangedEventArgs : public IOB_IOTEventArg
 {
 private:
-     int _state;
+     ConState _state = ConState::DISCONNECETD;
 
 public:
      IOB_IOTMqttStateChangedEventArgs() : IOB_IOTEventArg()
      {
-          _state = 0;
      }
-     IOB_IOTMqttStateChangedEventArgs(int state) : IOB_IOTEventArg()
+     IOB_IOTMqttStateChangedEventArgs(ConState state) : IOB_IOTEventArg()
      {
           _state = state;
      }
-     IOB_IOTMqttStateChangedEventArgs(int state, String message) : IOB_IOTEventArg(message)
+     IOB_IOTMqttStateChangedEventArgs(ConState state, String message) : IOB_IOTEventArg(message)
      {
           _state = state;
      }
-     int State()
+     ConState State()
      {
           return _state;
      }
-     void State(int state)
+     void State(ConState state)
      {
           _state = state;
+     }
+     String StateString()
+     {
+          return ConStateConverter::toString(_state);
      }
 };
 
