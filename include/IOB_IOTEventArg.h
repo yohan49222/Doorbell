@@ -1,6 +1,8 @@
 #ifndef IOB_IOTEVENTARG_H
 #define IOB_IOTEVENTARG_H
 
+#include "Arduino.h"
+
 class IOB_IOTEventArg
 {
 private:

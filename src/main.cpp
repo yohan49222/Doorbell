@@ -18,7 +18,7 @@ void dingdong(bool sendOn, bool sendOff)
      Serial.println("[MAIN] Process DINGDONG START ( custum process )");
 
      if (sendOn)
-          iob->SendData("On");
+          iob->SendData(RelayState::ON);
 
      Serial.println("[MAIN] Ding ( relay ON )");
      digitalWrite(RELAY_PIN, NCORNO ? LOW : HIGH);
@@ -30,7 +30,7 @@ void dingdong(bool sendOn, bool sendOff)
 
      Serial.println("[MAIN] Ding ( pause 1s Show sate in Domoticz )");
      if (sendOff)
-          iob->SendData("Off");
+          iob->SendData(RelayState::OFF);
 
      Serial.println("[MAIN] Process DINGDONG END");
 }

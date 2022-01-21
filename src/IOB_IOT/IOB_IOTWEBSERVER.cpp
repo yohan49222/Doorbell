@@ -1,5 +1,8 @@
 #include "IOB_IOT/IOB_IOTWEBSERVER.h"
 #include "IOB_IOT.h"
+
+#ifdef USE_WEBSERVER
+
 void IOB_IOTWEBSERVER::init()
 {
      webServer.on("/switchOn", IOB_IOTWEBSERVER::SwitchOn);
@@ -77,20 +80,19 @@ bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(String &out)
 void IOB_IOTWEBSERVER::TraitRequestWeb(RelayState state)
 {
      IOB_IOT *iob = IOB_IOT::GetInstance();
-     IotConfig conf = iob->getConf();
      IPAddress clientIp = iob->webServer.client().remoteIP();
-     IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(conf.getRequired().idxDevice, state, SendProtole::WEBSERVER);
+     IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(iob->getRequired().idxDevice, state, SendProtole::WEBSERVER);
      e.AddMessage("Reception commande " + e.StateString() + " de " + clientIp.toString());
 
      if (
 #ifdef USE_HTTP
-         clientIp != conf.getDomotic().ip
+         clientIp != iob->getDomotic().ip
 #else
          true
 #endif
          &&
 #ifdef USE_MQTT
-         clientIp != conf.getMqtt().ip
+         clientIp != iob->getMqtt().ip
 #else
          true
 #endif
@@ -109,7 +111,7 @@ void IOB_IOTWEBSERVER::TraitRequestWeb(RelayState state)
      if (iob->CreateJsonMessageForDomoticz(state, messJson))
           iob->webServer.send(200, "text/json", messJson);
 
-     IOB_IOTMessageSendedEventArgs er = IOB_IOTMessageSendedEventArgs(conf.getRequired().idxDevice, state, SendProtole::WEBSERVER);
+     IOB_IOTMessageSendedEventArgs er = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::WEBSERVER);
      e.AddMessage("Envois de la reponse HTTP " + messJson);
      iob->webServer_Response_EventHandler.fire(er);
 }
@@ -131,3 +133,5 @@ void IOB_IOTWEBSERVER::DebugServeur()
      if (iob->CreateJsonMessageForDebug(messJson))
           iob->webServer.send(200, "application/json", messJson);
 }
+
+#endif

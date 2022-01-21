@@ -5,35 +5,6 @@
 #include "IOB_IOT_Conf.h"
 #endif /* IOB_IOT_CONF_H */
 
-#ifdef USE_WIFI
-#include <ESP8266WiFi.h>
-#include <ArduinoJson.h>
-#include <ArduinoOTA.h>
-#ifdef USE_WEBSERVER
-#include <ESP8266WebServer.h>
-#endif /* USE_WEBSERVER */
-#ifdef USE_HTTP
-#include <ESP8266HTTPClient.h>
-#endif
-#ifdef USE_MQTT
-#include <PubSubClient.h>
-#endif /* USE_MQTT */
-
-#else
-#ifndef Arduino_h
-#include "Arduino.h"
-#include "IPAddress.h"
-#endif
-#endif /* USE_WIFI */
-
-#ifndef IOB_IOTEVENT_H
-#include "IOB_IOTEvent.h"
-#endif /* IOB_IOTEVENT_H */
-
-#ifndef IOB_IOTBUTTONPRESSED_H
-#include "IOB_IOTButtonPressed.h"
-#endif /* IOB_IOTBUTTONPRESSED_H */
-
 #include "IOB_IOT/Helpers.h"
 
 struct IpConfig
@@ -93,6 +64,7 @@ private:
      using Helper::EqualString;
      using Helper::GenerateRamdomModuleNane;
      using Helper::ParsedIpFromString;
+
      IpConfig configIp;
      WifiConfig configWifi;
      OtaConfig configOta;

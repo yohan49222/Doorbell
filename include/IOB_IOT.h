@@ -1,23 +1,59 @@
 #ifndef IOB_IOT_H
 #define IOB_IOT_H
 
-#include "IOB_IOT/IOB_IOTMQTT.h"
-#include "IOB_IOT/IOB_IOTHTTP.h"
-#include "IOB_IOT/IOB_IOTOTA.h"
-#include "IOB_IOT/IOB_IOTWEBSERVER.h"
-#include "IOB_IOT/IotConfig.h"
+#ifndef IOB_IOT_CONF_H
+#include "IOB_IOT_Conf.h"
+#endif /* IOB_IOT_CONF_H */
 
-class IOB_IOT : protected IOB_IOTHTTP, protected IOB_IOTMQTT, protected IOB_IOTOTA, protected IOB_IOTWEBSERVER
+#include "IOB_IOTButtonPressed.h"
+#include "IOB_IOTEvent.h"
+#include "IOB_IOT/SharedFunction.h"
+#include "IOB_IOT/IotConfig.h"
+#ifdef USE_WIFI
+#include <ESP8266WiFi.h>
+#ifdef USE_MQTT
+#include "IOB_IOT/IOB_IOTMQTT.h"
+#endif
+#ifdef USE_HTTP
+#include "IOB_IOT/IOB_IOTHTTP.h"
+#endif
+#ifdef USE_OTA
+#include "IOB_IOT/IOB_IOTOTA.h"
+#endif
+#ifdef USE_WEBSERVER
+#include "IOB_IOT/IOB_IOTWEBSERVER.h"
+#endif
+#else
+#include "Arduino.h"
+#endif
+class IOB_IOT : 
+     public IotConfig, public SharedFunction
+#ifdef USE_WIFI
+#ifdef USE_HTTP
+    ,private IOB_IOTHTTP
+#endif
+#ifdef USE_MQTT
+    ,private IOB_IOTMQTT
+#endif
+#ifdef USE_OTA
+    ,private IOB_IOTOTA
+#endif
+#ifdef USE_WEBSERVER
+    ,private IOB_IOTWEBSERVER
+#endif
+#endif
 {
 public:
-     /*
-     ok
-     */
+#ifdef USE_WIFI
+
+#ifdef USE_OTA
+     using IOB_IOTOTA::init;
+#endif
+
+#ifdef USE_MQTT
      using IOB_IOTMQTT::CanSendMqtt;
      using IOB_IOTMQTT::CanUseMqtt;
      using IOB_IOTMQTT::CanUseMqttSecure;
-     using IOB_IOTMQTT::CreateJsonMessageForDomoticz;
-     using IOB_IOTMQTT::get;
      using IOB_IOTMQTT::init;
      using IOB_IOTMQTT::LoopMqtt;
      using IOB_IOTMQTT::mqtt_Recep_EventHandler;
@@ -26,21 +62,28 @@ public:
      using IOB_IOTMQTT::ParseMqttMessage;
      using IOB_IOTMQTT::ReconnectMQTT;
      using IOB_IOTMQTT::Sendata;
-     /* a void */
+#endif
+
+#ifdef USE_HTTP
      using IOB_IOTHTTP::CreateHttpMessageForDomoticz;
-     using IOB_IOTHTTP::getDomotic;
      using IOB_IOTHTTP::http_Send_EventHandler;
      using IOB_IOTHTTP::Sendata;
-
+#endif
+#if defined(USE_HTTP) or defined(USE_WEBSERVER) or defined(USE_MQTT)
+     using SharedFunction::CreateJsonMessageForDomoticz;
+#endif
+#ifdef USE_WEBSERVER
      using IOB_IOTWEBSERVER::CreateJsonMessageForDebug;
      using IOB_IOTWEBSERVER::init;
      using IOB_IOTWEBSERVER::Loop;
      using IOB_IOTWEBSERVER::webServer;
      using IOB_IOTWEBSERVER::webServer_Request_EventHandler;
      using IOB_IOTWEBSERVER::webServer_Response_EventHandler;
+#endif
+#endif
 
 private:
-     static IOB_IOT *inst_; // The one, single instance
+     static IOB_IOT *inst_;
      IOB_IOT();
      IOB_IOT(const IOB_IOT &);
      IOB_IOT &operator=(const IOB_IOT &);
@@ -57,28 +100,23 @@ private:
      WiFiEventHandler onGotIPHandler;
      WiFiEventHandler onDisConnectedHandler;
 
-     bool SendData(String send, int sendVia, IOB_IOTMessageSendedEventArgs &e);
-
 #endif /* USE_WIFI */
-
 
      IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
      volatile uint32_t debounceTimer = 0;
      uint32_t buttonPresseCount = 0;
      static void IRAM_ATTR ButtonPressed();
-     
 
 public:
      static IOB_IOT *GetInstance();
      ~IOB_IOT();
      void Loop();
      void Run();
-     IotConfig getConf();
-     void SendData(String state);
+    
      void SendData(RelayState state);
+#ifdef USE_WIFI 
      WiFiClient espClient;
-
-
+#endif
      void OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
      void OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
      void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
@@ -89,15 +127,9 @@ public:
      void OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
 
      void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
+
+
      void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
-
-//#define CANUSEWIFI
-//#define CANUSEMQTT IOB_IOTMQTT::getMqttIp().isSet() && IOB_IOTMQTT::getIdx() > 0
-//#define CANUSEMQTTSECURE IOB_IOTMQTT::getMqtt(). != emptyString &&IOB_IOTMQTT::getMqttPassword() != emptyString &&CANUSEMQTT
-//#define CANSENDVIAMQTT
-//#define CANUSEHTTP IOB_IOTMQTT::getDomoIp().isSet() && IOB_IOTMQTT::get().getRequired().idxDevice > 0
-//#define CANSENDVIAHTTP CANUSEHTTP &&WiFi.isConnected()
-//#define CANUSEOTASECURE IOB_IOTMQTT::getConfigOta().password != emptyString
 
 #endif /* IOB_IOT_H */

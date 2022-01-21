@@ -1,14 +1,12 @@
 #ifndef IOB_IOTWEBSERVER_H
 #define IOB_IOTWEBSERVER_H
-#include "IOB_IOT/IotConfig.h"
 
-
-class IOB_IOTWEBSERVER : private IotConfig
+#include <ESP8266WebServer.h>
+#include "IOB_IOTEvent.h"
+#include <ArduinoJson.h>
+class IOB_IOTWEBSERVER
 {
 private:
-     using IotConfig::getWebServerPort;
-     
-     
      static void SwitchOn();
      static void SwitchOff();
      static void TraitRequestWeb(RelayState state);

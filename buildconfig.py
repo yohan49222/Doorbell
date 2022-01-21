@@ -79,11 +79,11 @@ if os.path.isfile('config.json'):
                               UPLOAD_PROTOCOL="espota",
                               UPLOAD_PORT=port,
                          )
-               if password  and len(password):
-                    if env["PIOENV"] == "nodemcuv2":
-                         env.Replace(
-                              UPLOAD_FLAGS=["--port=8266", "--auth=" + password],
-                         )
+                    if password  and len(password):
+                         if env["PIOENV"] == "nodemcuv2":
+                              env.Replace(
+                                   UPLOAD_FLAGS=["--port=8266", "--auth=" + password],
+                              )
 
           check = conf["USE_IPFIXE"]
           if check and int(check) == 1:

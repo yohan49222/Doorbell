@@ -1,9 +1,7 @@
 #ifndef IOB_IOTEVENT_H
 #define IOB_IOTEVENT_H
 
-#ifndef IOB_IOTEVENTARG_H
 #include "IOB_IOTEventArg.h"
-#endif /* IOB_IOTEVENTARG_H */
 
 enum ConState
 {
