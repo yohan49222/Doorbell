@@ -23,8 +23,6 @@ IOB_IOT::IOB_IOT() : IotConfig()
 void IRAM_ATTR IOB_IOT::ButtonPressed()
 {
      IOB_IOT *inst = IOB_IOT::GetInstance();
-     // IotConfig *conf = IotConfig::GetInstance();
-     // if (millis() - conf->getRequired().debounceTime >= inst->debounceTimer)
      if (millis() - inst->getRequired().debounceTime >= inst->debounceTimer)
      {
           inst->debounceTimer = millis();
@@ -34,16 +32,10 @@ void IRAM_ATTR IOB_IOT::ButtonPressed()
 }
 
 /* FONCTIONS PUBLIQUE */
-
-/**
- * @brief Lancement du proces
- *
- */
 void IOB_IOT::Run()
 {
-     IOB_IOT *inst = IOB_IOT::GetInstance();
-     Required req = inst->getRequired();
-     WifiConfig w = inst->getConfigWifi();
+     Required req = getRequired();
+
      pinMode(req.relayPin, OUTPUT);
      pinMode(req.buttonPin, INPUT_PULLUP);
      attachInterrupt(req.buttonPin, ButtonPressed, FALLING);
@@ -53,19 +45,18 @@ void IOB_IOT::Run()
 #ifdef USE_OTA
      IOB_IOTOTA::init();
 #endif
-
-         if (w.ssid != emptyString && w.password != emptyString)
+     WifiConfig w = getConfigWifi();
+     if (w.ssid != emptyString && w.password != emptyString)
      {
           WiFi.mode(WIFI_STA);
 
 #ifdef USE_IPFIXE
-          IpConfig ips = inst->getConfigIp();
+          IpConfig ips = getConfigIp();
           if (ips.ip.isSet() && ips.gateWay.isSet() && ips.subnet.isSet() && ips.dns.isSet())
                WiFi.config(ips.ip, ips.gateWay, ips.subnet, ips.dns);
 #endif /* USE_IPFIXE */
 
           WiFi.setHostname(req.nomModule.c_str());
-          WifiConfig w = inst->getConfigWifi();
           WiFi.begin(w.ssid, w.password);
 
           onConnectedHandler = WiFi.onStationModeConnected(IOB_IOT::OnConnected);
@@ -75,17 +66,11 @@ void IOB_IOT::Run()
 
 #ifdef USE_WEBSERVER
      IOB_IOTWEBSERVER::init();
-     // webServer.on("/switchOn", IOB_IOT::SwitchOn);
-     // webServer.on("/switchOff", IOB_IOT::SwitchOff);
-     // webServer.on("/DebugServeur.json", IOB_IOT::DebugServeur);
-     // webServer.begin();
 #endif
 
 #ifdef USE_MQTT
      if (CanUseMqtt())
-     {
           IOB_IOTMQTT::init();
-     }
 #endif
 
 #endif /* USE_WIFI */
@@ -93,10 +78,9 @@ void IOB_IOT::Run()
 
 void IOB_IOT::Loop()
 {
-     IOB_IOT *inst = IOB_IOT::GetInstance();
 #ifdef USE_WIFI
 
-     WifiConfig w = inst->getConfigWifi();
+     WifiConfig w = getConfigWifi();
      // Si l'objet est connecté au réseau, on effectue les tâches qui doivent l'être dans ce cas
      if (WiFi.isConnected())
      {
@@ -115,7 +99,6 @@ void IOB_IOT::Loop()
 
 #ifdef USE_WEBSERVER
      IOB_IOTWEBSERVER::Loop();
-     // webServer.handleClient();
 #endif /* USE_WEBSERVER */
 
 #ifdef USE_OTA
@@ -124,7 +107,7 @@ void IOB_IOT::Loop()
 
 #endif /* USE_WIFI */
 
-     Required req = inst->getRequired();
+     Required req = getRequired();
      if (buttonPresseCount >= req.buttonPresseCountMax)
      {
           buttonPresseCount = 0;
@@ -140,7 +123,7 @@ void IOB_IOT::Loop()
      }
 }
 
-void IOB_IOT::OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler)
+void IOB_IOT::OnMqttRecep(MqttRecep handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_MQTT
@@ -149,7 +132,7 @@ void IOB_IOT::OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> 
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler)
+void IOB_IOT::OnMqttSend(MqttSend handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_MQTT
@@ -158,7 +141,7 @@ void IOB_IOT::OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> ha
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler)
+void IOB_IOT::OnWebSend(WebSend handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_WEBSERVER
@@ -167,7 +150,7 @@ void IOB_IOT::OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> han
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler)
+void IOB_IOT::OnWebRecep(WebRecep handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_WEBSERVER
@@ -176,7 +159,7 @@ void IOB_IOT::OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> h
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler)
+void IOB_IOT::OnHttpSend(HttpSend handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_HTTP
@@ -185,7 +168,7 @@ void IOB_IOT::OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> ha
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler)
+void IOB_IOT::OnMqttStateChanged(MqttState handler)
 {
 #ifdef USE_WIFI
 #ifdef USE_MQTT
@@ -194,14 +177,14 @@ void IOB_IOT::OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEvent
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler)
+void IOB_IOT::OnWifiStateChanged(WifiState handler)
 {
 #ifdef USE_WIFI
      wifiStateChangedEventHandler.setHandler(handler);
 #endif /* USE_WIFI */
 }
 
-void IOB_IOT::OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler)
+void IOB_IOT::OnButtonPressed(BtPress handler)
 {
      buttonPressedEventHandler.setHandler(handler);
 }
@@ -211,7 +194,6 @@ void IOB_IOT::SendData(RelayState state)
 
 #ifdef USE_WIFI
 #if defined(USE_MQTT) or defined(USE_HTTP)
-     IOB_IOT *inst = IOB_IOT::GetInstance();
      bool sendSuccess = false;
 
 #ifdef USE_MQTT
@@ -223,7 +205,7 @@ void IOB_IOT::SendData(RelayState state)
 #endif /* USE MQTT */
 
 #ifdef USE_HTTP
-     if (!sendSuccess && inst->getDomotic().ip.isSet() && inst->getRequired().idxDevice > 0)
+     if (!sendSuccess && getDomotic().ip.isSet() && getRequired().idxDevice > 0)
      {
           sendSuccess = IOB_IOTHTTP::Sendata(state, espClient);
      }

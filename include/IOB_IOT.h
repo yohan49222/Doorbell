@@ -5,10 +5,8 @@
 #include "IOB_IOT_Conf.h"
 #endif /* IOB_IOT_CONF_H */
 
-#include "IOB_IOTButtonPressed.h"
-#include "IOB_IOTEvent.h"
-#include "IOB_IOT/SharedFunction.h"
-#include "IOB_IOT/IotConfig.h"
+#include "IOB_IOT/SHARE/SharedFunction.h"
+#include "IOB_IOT/SHARE/IotConfig.h"
 #ifdef USE_WIFI
 #include <ESP8266WiFi.h>
 #ifdef USE_MQTT
@@ -26,20 +24,28 @@
 #else
 #include "Arduino.h"
 #endif
-class IOB_IOT : 
-     public IotConfig, public SharedFunction
+#include "IOB_IOT/EVENTS/IOB_IOTEventArg.h"
+#include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
+#include "IOB_IOT/EVENTS/IOB_IOTButtonPressed.h"
+
+
+class IOB_IOT : public IotConfig, public SharedFunction
 #ifdef USE_WIFI
 #ifdef USE_HTTP
-    ,private IOB_IOTHTTP
+    ,
+                private IOB_IOTHTTP
 #endif
 #ifdef USE_MQTT
-    ,private IOB_IOTMQTT
+    ,
+                private IOB_IOTMQTT
 #endif
 #ifdef USE_OTA
-    ,private IOB_IOTOTA
+    ,
+                private IOB_IOTOTA
 #endif
 #ifdef USE_WEBSERVER
-    ,private IOB_IOTWEBSERVER
+    ,
+                private IOB_IOTWEBSERVER
 #endif
 #endif
 {
@@ -112,24 +118,32 @@ public:
      ~IOB_IOT();
      void Loop();
      void Run();
-    
+
      void SendData(RelayState state);
-#ifdef USE_WIFI 
+#ifdef USE_WIFI
      WiFiClient espClient;
 #endif
-     void OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-     void OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
-     void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
+     void OnMqttSend(MqttSend handler);
+     void OnMqttRecep(MqttRecep handler);
+     void OnMqttStateChanged(MqttState handler);
+     void OnWebSend(WebSend handler);
+     void OnWebRecep(WebRecep handler);
+     void OnHttpSend(HttpSend handler);
+     void OnWifiStateChanged(WifiState handler);
+     void OnButtonPressed(BtPress handler);
 
-     void OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-     void OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+     // void OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     // void OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
+     // void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
 
-     void OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     // void OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
+     // void OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
 
-     void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
+     // void OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
 
+     // void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
 
-     void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
+     // void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
 
 #endif /* IOB_IOT_H */

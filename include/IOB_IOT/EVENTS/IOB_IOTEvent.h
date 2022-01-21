@@ -24,7 +24,6 @@ public:
      }
 };
 
-
 enum SendDataMethod
 {
      SENDBY_MQTT_ONLY = 0,
@@ -276,6 +275,8 @@ public:
           return ConStateConverter::toString(_state);
      }
 };
+
+
 
 typedef IOB_IOTEventHandler<IOB_IOTWifiStateChangedEventArgs> IOB_IOTWifiStateEventHandler;
 typedef IOB_IOTEventHandler<IOB_IOTMqttStateChangedEventArgs> IOB_IOTMqttStateEventHandler;

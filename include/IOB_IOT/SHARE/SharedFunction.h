@@ -2,7 +2,8 @@
 #define SHAREDFUNCTION_H
 
 #include <ArduinoJson.h>
-#include "IOB_IOTEvent.h"
+#include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
+
 class SharedFunction
 {
 public:

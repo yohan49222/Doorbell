@@ -1,6 +1,7 @@
 #include "IOB_IOT/IOB_IOTOTA.h"
 #include "IOB_IOT.h"
 
+#ifdef USE_OTA
 void IOB_IOTOTA::init()
 {
      IOB_IOT *inst = IOB_IOT::GetInstance();
@@ -28,3 +29,4 @@ void IOB_IOTOTA::init()
             else if (error == OTA_END_ERROR) Serial.println("End Failed"); });
      ArduinoOTA.begin();
 }
+#endif

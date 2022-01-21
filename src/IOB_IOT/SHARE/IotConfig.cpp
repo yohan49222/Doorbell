@@ -1,4 +1,4 @@
-#include "IOB_IOT/IotConfig.h"
+#include "IOB_IOT/SHARE/IotConfig.h"
 
 IotConfig::IotConfig()
 {
@@ -8,7 +8,6 @@ IotConfig::IotConfig()
 
 #ifdef BUTTON_PIN
      required.buttonPin = DefinedInt(BUTTON_PIN) ? BUTTON_PIN : 2;
-
 #endif
 
 #ifdef NCORNO
@@ -29,6 +28,15 @@ IotConfig::IotConfig()
 
 #ifdef IDXDEVICE
      required.idxDevice = IDXDEVICE;
+#endif
+
+#ifdef USE_WIFI
+#ifdef MYSSID
+     configWifi.ssid = DefinedString((String)MYSSID) && !EqualString((String)MYSSID, "my_ssid") ? (String)MYSSID : emptyString;
+#endif
+
+#ifdef MYSSID_PASSWORD
+     configWifi.password = DefinedString((String)MYSSID_PASSWORD) && !EqualString((String)MYSSID_PASSWORD, "my_ssid_password") ? (String)MYSSID_PASSWORD : emptyString;
 #endif
 
 #ifdef USE_MQTT
@@ -57,6 +65,7 @@ IotConfig::IotConfig()
      mqtt.password = DefinedString((String)MQTT_PASSWORD) && !EqualString((String)MQTT_PASSWORD, "password") ? (String)MQTT_PASSWORD : emptyString;
 #endif
 #endif
+
 #ifdef USE_HTTP
 #ifdef DOMOTIC_SERVER
      domo.ip = IPAddress::isValid((String)DOMOTIC_SERVER) ? ParsedIpFromString((String)DOMOTIC_SERVER) : INADDR_NONE;
@@ -65,14 +74,6 @@ IotConfig::IotConfig()
 #ifdef DOMOTIC_PORT
      domo.port = DefinedInt(DOMOTIC_PORT) ? DOMOTIC_PORT : 8080;
 #endif
-#endif
-
-#ifdef MYSSID
-     configWifi.ssid = DefinedString((String)MYSSID) && !EqualString((String)MYSSID, "my_ssid") ? (String)MYSSID : emptyString;
-#endif
-
-#ifdef MYSSID_PASSWORD
-     configWifi.password = DefinedString((String)MYSSID_PASSWORD) && !EqualString((String)MYSSID_PASSWORD, "my_ssid_password") ? (String)MYSSID_PASSWORD : emptyString;
 #endif
 
 #ifdef USE_IPFIXE
@@ -109,47 +110,51 @@ IotConfig::IotConfig()
      webServerPort = DefinedInt(WEBSERVER_PORT) ? WEBSERVER_PORT : 80;
 #endif
 #endif
-}
-
-void IotConfig::setPreviousMillis(unsigned long i)
-{
-     mqtt.previousMillis = i;
-}
-
-IpConfig IotConfig::getConfigIp()
-{
-     return configIp;
-}
-
-WifiConfig IotConfig::getConfigWifi()
-{
-     return configWifi;
-}
-
-OtaConfig IotConfig::getConfigOta()
-{
-     return configOta;
-}
-
-uint32_t IotConfig::getWebServerPort()
-{
-     return webServerPort;
-}
-
-Mqtt IotConfig::getMqtt()
-{
-     return mqtt;
+#endif
 }
 
 Required IotConfig::getRequired()
 {
      return required;
 }
+
+#ifdef USE_WIFI
+WifiConfig IotConfig::getConfigWifi()
+{
+     return configWifi;
+}
+#ifdef USE_IPFIXE
+IpConfig IotConfig::getConfigIp()
+{
+     return configIp;
+}
+#endif
+#ifdef USE_OTA
+OtaConfig IotConfig::getConfigOta()
+{
+     return configOta;
+}
+#endif
+#ifdef USE_MQTT
+void IotConfig::setPreviousMillis(unsigned long i)
+{
+     mqtt.previousMillis = i;
+}
+Mqtt IotConfig::getMqtt()
+{
+     return mqtt;
+}
+#endif
+#ifdef USE_HTTP
 Domotic IotConfig::getDomotic()
 {
      return domo;
 }
-IotConfig IotConfig::get()
+#endif
+#ifdef USE_WEBSERVER
+uint32_t IotConfig::getWebServerPort()
 {
-     return *this;
+     return webServerPort;
 }
+#endif
+#endif

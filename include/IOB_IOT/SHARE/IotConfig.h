@@ -5,7 +5,9 @@
 #include "IOB_IOT_Conf.h"
 #endif /* IOB_IOT_CONF_H */
 
-#include "IOB_IOT/Helpers.h"
+#include "IOB_IOT/SHARE/Helpers.h"
+
+#ifdef USE_WIFI
 
 struct IpConfig
 {
@@ -45,6 +47,8 @@ struct Domotic
      uint32_t port = 8080;
 };
 
+#endif
+
 struct Required
 {
      String nomModule = emptyString;
@@ -64,25 +68,49 @@ private:
      using Helper::EqualString;
      using Helper::GenerateRamdomModuleNane;
      using Helper::ParsedIpFromString;
-
-     IpConfig configIp;
-     WifiConfig configWifi;
-     OtaConfig configOta;
      Required required;
+
+#ifdef USE_WIFI
+     WifiConfig configWifi;
+#ifdef USE_IPFIXE
+     IpConfig configIp;
+#endif
+#ifdef USE_OTA
+     OtaConfig configOta;
+#endif
+#ifdef USE_MQTT
      Mqtt mqtt;
+#endif
+#ifdef USE_HTTP
      Domotic domo;
+#endif
+#ifdef USE_WEBSERVER
      uint32_t webServerPort = 80;
+#endif
+#endif
 
 public:
      IotConfig();
-     IotConfig get();
-     void setPreviousMillis(unsigned long i);
-     IpConfig getConfigIp();
-     WifiConfig getConfigWifi();
-     Domotic getDomotic();
-     OtaConfig getConfigOta();
-     uint32_t getWebServerPort();
-     Mqtt getMqtt();
      Required getRequired();
+
+#ifdef USE_WIFI
+     WifiConfig getConfigWifi();
+#ifdef USE_IPFIXE
+     IpConfig getConfigIp();
+#endif
+#ifdef USE_OTA
+     OtaConfig getConfigOta();
+#endif
+#ifdef USE_MQTT
+     void setPreviousMillis(unsigned long i);
+     Mqtt getMqtt();
+#endif
+#ifdef USE_HTTP
+     Domotic getDomotic();
+#endif
+#ifdef USE_WEBSERVER
+     uint32_t getWebServerPort();
+#endif
+#endif
 };
 #endif

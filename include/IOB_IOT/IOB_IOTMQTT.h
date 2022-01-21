@@ -3,7 +3,7 @@
 
 #include <PubSubClient.h>
 
-#include "IOB_IOTEvent.h"
+#include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
 
 class IOB_IOTMQTT
 {

@@ -1,6 +1,7 @@
 #include "IOB_IOT/IOB_IOTHTTP.h"
 #include "IOB_IOT.h"
 
+#ifdef USE_HTTP
 bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(RelayState state, String &out)
 {
      IOB_IOT *iob = IOB_IOT::GetInstance();
@@ -47,3 +48,4 @@ bool IOB_IOTHTTP::Sendata(RelayState state, WiFiClient &espClient)
      }
      return sendSuccess;
 }
+#endif

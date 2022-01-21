@@ -1,4 +1,4 @@
-#include "IOB_IOT/SharedFunction.h"
+#include "IOB_IOT/SHARE/SharedFunction.h"
 #include "IOB_IOT.h"
 
 bool SharedFunction::CreateJsonMessageForDomoticz(RelayState state, String &out)

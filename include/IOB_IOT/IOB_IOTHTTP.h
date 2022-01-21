@@ -2,7 +2,7 @@
 #define IOB_IOTHTTP_H
 
 #include <ESP8266HTTPClient.h>
-#include "IOB_IOTEvent.h"
+#include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
 
 class IOB_IOTHTTP
 {

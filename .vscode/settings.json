@@ -57,7 +57,14 @@
           "netfwd": "cpp",
           "random": "cpp",
           "string": "cpp",
-          "ranges": "cpp"
+          "ranges": "cpp",
+          "codecvt": "cpp",
+          "condition_variable": "cpp",
+          "csignal": "cpp",
+          "future": "cpp",
+          "mutex": "cpp",
+          "thread": "cpp",
+          "stop_token": "cpp"
      },
      "C_Cpp.errorSquiggles": "Disabled"
 }
