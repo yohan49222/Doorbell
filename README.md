@@ -89,5 +89,8 @@
 # Liens  :
 
 ![](https://github.com/yohan49222/Doorbell/blob/main/images/logo98-98.png)
-* **Youtube** - <a link="https://www.youtube.com/channel/UCCFsJROyzppyjq3WvpNAwGA">Voir mes vidéos</a>
-* **Facebook** - <a link="https://www.facebook.com/IciOnBricole">Contactez-moi via ma page facebook IciOnBricole</a>
+
+
+
+*  Voir mes vidéos [**Youtube**](https://www.youtube.com/channel/UCCFsJROyzppyjq3WvpNAwGA).
+*  Contactez-moi via ma page facebook  [**IciOnBricole**](https://www.facebook.com/IciOnBricole).
