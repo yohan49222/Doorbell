@@ -18,6 +18,7 @@ IOB_IOT::~IOB_IOT()
 
 IOB_IOT::IOB_IOT() : IotConfig()
 {
+
 }
 
 void IRAM_ATTR IOB_IOT::ButtonPressed()
@@ -43,7 +44,7 @@ void IOB_IOT::Run()
 
 #ifdef USE_WIFI
 #ifdef USE_OTA
-     IOB_IOTOTA::init();
+     IOB_IOTOTA::init(this);
 #endif
      WifiConfig w = getConfigWifi();
      if (w.ssid != emptyString && w.password != emptyString)
@@ -65,12 +66,12 @@ void IOB_IOT::Run()
      }
 
 #ifdef USE_WEBSERVER
-     IOB_IOTWEBSERVER::init();
+     IOB_IOTWEBSERVER::init(this);
 #endif
 
 #ifdef USE_MQTT
-     if (CanUseMqtt())
-          IOB_IOTMQTT::init();
+     if (CanUseMqtt(this))
+          IOB_IOTMQTT::init(this);
 #endif
 
 #endif /* USE_WIFI */
@@ -84,7 +85,7 @@ void IOB_IOT::Loop()
      if (WiFi.isConnected())
      {
 #ifdef USE_MQTT
-          LoopMqtt();
+          LoopMqtt(this);
 #endif
      }
      else if (w.ssid != emptyString && w.password != emptyString)
@@ -97,7 +98,7 @@ void IOB_IOT::Loop()
      }
 
 #ifdef USE_WEBSERVER
-     IOB_IOTWEBSERVER::Loop();
+     IOB_IOTWEBSERVER::Loop(this);
 #endif /* USE_WEBSERVER */
 
 #ifdef USE_OTA
@@ -196,9 +197,9 @@ void IOB_IOT::SendData(RelayState state)
      bool sendSuccess = false;
 
 #ifdef USE_MQTT
-     if (WiFi.isConnected() && CanSendMqtt())
+     if (WiFi.isConnected() && CanSendMqtt(this))
      {
-          sendSuccess = IOB_IOTMQTT::Sendata(state);
+          sendSuccess = IOB_IOTMQTT::Sendata(this, state);
           return;
      }
 #endif /* USE MQTT */
@@ -206,7 +207,7 @@ void IOB_IOT::SendData(RelayState state)
 #ifdef USE_HTTP
      if (!sendSuccess && getDomotic().ip.isSet() && getRequired().idxDevice > 0)
      {
-          sendSuccess = IOB_IOTHTTP::Sendata(state, espClient);
+          sendSuccess = IOB_IOTHTTP::Sendata(this, state, espClient);
      }
 #endif /* USE HTTP */
 #endif

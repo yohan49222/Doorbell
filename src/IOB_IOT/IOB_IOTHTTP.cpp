@@ -2,9 +2,8 @@
 #include "IOB_IOT.h"
 
 #ifdef USE_HTTP
-bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(RelayState state, String &out)
+bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out)
 {
-     IOB_IOT *iob = IOB_IOT::GetInstance();
      String url = "http://";
      url += iob->getDomotic().ip.toString();
      url += ":";
@@ -17,14 +16,12 @@ bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(RelayState state, String &out)
      return true;
 }
 
-bool IOB_IOTHTTP::Sendata(RelayState state, WiFiClient &espClient)
+bool IOB_IOTHTTP::Sendata(IOB_IOT *iob, RelayState state, WiFiClient &espClient)
 {
-     IOB_IOT *iob = IOB_IOT::GetInstance();
-
      bool sendSuccess = false;
      String url;
 
-     if (CreateHttpMessageForDomoticz(state, url))
+     if (CreateHttpMessageForDomoticz(iob, state, url))
      {
           IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::HTTP, url);
           httpClient.begin(espClient, url.c_str());

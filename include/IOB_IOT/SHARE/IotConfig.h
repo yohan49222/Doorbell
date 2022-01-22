@@ -105,6 +105,7 @@ public:
 #endif
 #ifdef USE_MQTT
      void setPreviousMillis(unsigned long i);
+     void setintervalConnect(unsigned long i);
      Mqtt getMqtt();
 #endif
 #ifdef USE_HTTP

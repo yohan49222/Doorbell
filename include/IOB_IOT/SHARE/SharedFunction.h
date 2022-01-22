@@ -3,10 +3,11 @@
 
 #include <ArduinoJson.h>
 #include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
+class IOB_IOT;
 
 class SharedFunction
 {
 public:
-     bool CreateJsonMessageForDomoticz(RelayState state, String &out);
+     bool CreateJsonMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out);
 };
 #endif

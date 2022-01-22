@@ -2,27 +2,31 @@
 #define IOB_IOTMQTT_H
 
 #include <PubSubClient.h>
-
 #include "IOB_IOT/EVENTS/IOB_IOTEvent.h"
+
+class IOB_IOT;
+
 
 class IOB_IOTMQTT
 {
 private:
      PubSubClient MQTT_Client;
-
+     uint32_t countEchec = 0;
+     unsigned long intervalConnectSave = 1000;
+     
 public:
-     void init();
-     bool CanSendMqtt();
-     bool CanUseMqtt();
-     bool CanUseMqttSecure();
-     void ReconnectMQTT();
-     static void ParseMqttMessage(char *topic, byte *message, unsigned int length);
+     void init(IOB_IOT *iob);
+     bool CanSendMqtt(IOB_IOT *iob);
+     bool CanUseMqtt(IOB_IOT *iob);
+     bool CanUseMqttSecure(IOB_IOT *iob);
+     void ReconnectMQTT(IOB_IOT *iob);
+     static void ParseMqttMessage(IOB_IOT *iob, char *topic, byte *message, unsigned int length);
      
      static void CallbackMQTT(char *topic, byte *message, unsigned int length);
      IOB_IOTMqttStateEventHandler mqtt_State_Changed_EventHandler;
      IOB_IOTMessageRecevedEventHandler mqtt_Recep_EventHandler;
      IOB_IOTMessageSendedventHandler mqtt_Send_EventHandler;
-     bool Sendata(RelayState state);
-     void LoopMqtt();
+     bool Sendata(IOB_IOT *iob, RelayState state);
+     void LoopMqtt(IOB_IOT *iob);
 };
 #endif

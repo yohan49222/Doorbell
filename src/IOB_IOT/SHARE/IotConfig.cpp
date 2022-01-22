@@ -149,6 +149,10 @@ OtaConfig IotConfig::getConfigOta()
 }
 #endif
 #ifdef USE_MQTT
+void IotConfig::setintervalConnect(unsigned long i)
+{
+     mqtt.intervalConnect = i;
+}
 void IotConfig::setPreviousMillis(unsigned long i)
 {
      mqtt.previousMillis = i;

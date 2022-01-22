@@ -2,13 +2,11 @@
 #include "IOB_IOT.h"
 
 #ifdef USE_OTA
-void IOB_IOTOTA::init()
+void IOB_IOTOTA::init(IOB_IOT *iob)
 {
-     IOB_IOT *inst = IOB_IOT::GetInstance();
-
-     ArduinoOTA.setHostname(inst->getConfigOta().name.c_str());
-     if (inst->getConfigOta().password != emptyString)
-          ArduinoOTA.setPassword(inst->getConfigOta().password.c_str());
+     ArduinoOTA.setHostname(iob->getConfigOta().name.c_str());
+     if (iob->getConfigOta().password != emptyString)
+          ArduinoOTA.setPassword(iob->getConfigOta().password.c_str());
 
      ArduinoOTA.onStart([]()
                         { Serial.println("Start OTA UPDATE"); });

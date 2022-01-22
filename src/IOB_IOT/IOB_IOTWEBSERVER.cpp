@@ -3,19 +3,19 @@
 
 #ifdef USE_WEBSERVER
 
-void IOB_IOTWEBSERVER::init()
+void IOB_IOTWEBSERVER::init(IOB_IOT *iob)
 {
      webServer.on("/switchOn", IOB_IOTWEBSERVER::SwitchOn);
      webServer.on("/switchOff", IOB_IOTWEBSERVER::SwitchOff);
      webServer.on("/DebugServeur.json", IOB_IOTWEBSERVER::DebugServeur);
-     webServer.begin(80);
+     webServer.begin(iob->getWebServerPort());
 }
-void IOB_IOTWEBSERVER::Loop()
+void IOB_IOTWEBSERVER::Loop(IOB_IOT *iob)
 {
      webServer.handleClient();
 }
 
-bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(String &out)
+bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(IOB_IOT *iob, String &out)
 {
      StaticJsonBuffer<1024> jsonBuffer;
      StaticJsonBuffer<1024> jsonBuffer2;
@@ -77,9 +77,8 @@ bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(String &out)
      return false;
 }
 
-void IOB_IOTWEBSERVER::TraitRequestWeb(RelayState state)
+void IOB_IOTWEBSERVER::TraitRequestWeb(IOB_IOT *iob, RelayState state)
 {
-     IOB_IOT *iob = IOB_IOT::GetInstance();
      IPAddress clientIp = iob->webServer.client().remoteIP();
      IOB_IOTMessageRecevedEventArgs e = IOB_IOTMessageRecevedEventArgs(iob->getRequired().idxDevice, state, SendProtole::WEBSERVER);
      e.AddMessage("Reception commande " + e.StateString() + " de " + clientIp.toString());
@@ -108,7 +107,7 @@ void IOB_IOTWEBSERVER::TraitRequestWeb(RelayState state)
      }
      iob->webServer_Request_EventHandler.fire(e);
      String messJson;
-     if (iob->CreateJsonMessageForDomoticz(state, messJson))
+     if (iob->CreateJsonMessageForDomoticz(iob, state, messJson))
           iob->webServer.send(200, "text/json", messJson);
 
      IOB_IOTMessageSendedEventArgs er = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::WEBSERVER);
@@ -118,19 +117,21 @@ void IOB_IOTWEBSERVER::TraitRequestWeb(RelayState state)
 
 void IOB_IOTWEBSERVER::SwitchOn()
 {
-     TraitRequestWeb(RelayState::ON);
+     IOB_IOT *iob = IOB_IOT::GetInstance();
+     TraitRequestWeb(iob, RelayState::ON);
 }
 
 void IOB_IOTWEBSERVER::SwitchOff()
 {
-     TraitRequestWeb(RelayState::OFF);
+     IOB_IOT *iob = IOB_IOT::GetInstance();
+     TraitRequestWeb(iob, RelayState::OFF);
 }
 
 void IOB_IOTWEBSERVER::DebugServeur()
 {
      IOB_IOT *iob = IOB_IOT::GetInstance();
      String messJson;
-     if (iob->CreateJsonMessageForDebug(messJson))
+     if (iob->CreateJsonMessageForDebug(iob, messJson))
           iob->webServer.send(200, "application/json", messJson);
 }
 

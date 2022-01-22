@@ -1,9 +1,8 @@
 #include "IOB_IOT/SHARE/SharedFunction.h"
 #include "IOB_IOT.h"
 
-bool SharedFunction::CreateJsonMessageForDomoticz(RelayState state, String &out)
+bool SharedFunction::CreateJsonMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out)
 {
-     IOB_IOT *iob = IOB_IOT::GetInstance();
 
      StaticJsonBuffer<256> jsonBuffer;
      JsonObject &root = jsonBuffer.createObject();
