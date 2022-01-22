@@ -112,10 +112,10 @@ void IOB_IOT::Loop()
           buttonPresseCount = 0;
           IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs();
           buttonPressedEventHandler.fire(e);
-          if (e.Handled())
+          if (!e.Handled() && req.relayAutoOff)
           {
                digitalWrite(req.relayPin, req.relayNcOrNo ? LOW : HIGH);
-               delay(200);
+               delay(req.relayAutoOffAfter);
                digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);
           }
           Serial.println("button pressed");

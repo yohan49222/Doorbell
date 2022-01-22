@@ -2,6 +2,14 @@
 
 IotConfig::IotConfig()
 {
+#ifdef RELAY_AUTO_OFF
+     required.relayAutoOff = DefinedInt(RELAY_AUTO_OFF) ? RELAY_AUTO_OFF : 1;
+#endif
+
+#ifdef RELAY_AUTO_OFF_AFTER
+     required.relayAutoOffAfter = DefinedInt(RELAY_AUTO_OFF_AFTER) ? RELAY_AUTO_OFF_AFTER: 200;
+#endif
+
 #ifdef RELAY_PIN
      required.relayPin = DefinedInt(RELAY_PIN) ? RELAY_PIN : 0;
 #endif

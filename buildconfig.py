@@ -51,8 +51,9 @@ if os.path.isfile('config.json'):
      lines = open('config.json', "r")
      conf = json.loads(lines.read())
 
-     AddValuesInCPP(conf, ["RELAY_PIN", "BUTTON_PIN", "DEBOUNCE_TIME",
-                   "BUTTON_PRESS_COUNT_MAX", "IDXDEVICE", "NOMMODULE"])
+     AddValuesInCPP(conf, [
+                         "RELAY_PIN", "BUTTON_PIN", "DEBOUNCE_TIME","RELAY_AUTO_OFF","RELAY_AUTO_OFF_AFTER",
+                         "BUTTON_PRESS_COUNT_MAX", "IDXDEVICE", "NOMMODULE"])
 
      check = conf["NCORNO"]
      if check and int(check) == 1:

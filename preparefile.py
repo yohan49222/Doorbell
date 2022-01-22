@@ -13,6 +13,8 @@ def initialConf():
         "RELAY_PIN":"0",
         "BUTTON_PIN":"2",
         "NCORNO":"1",
+        "RELAY_AUTO_OFF":"1",
+        "RELAY_AUTO_OFF_AFTER":"200",
         "DEBOUNCE_TIME":"100",
         "BUTTON_PRESS_COUNT_MAX":"5",
         "NOMMODULE":"sonnette",
@@ -89,7 +91,9 @@ def ConfigH():
     #define IDXDEVICE 13 
     #define NOMMODULE "sonnette" 
     #define NCORNO true 
-
+    #define RELAY_AUTO_OFF_AFTER 200
+    #define RELAY_AUTO_OFF 1
+    
     """
 
     check = conf["USE_WIFI"]

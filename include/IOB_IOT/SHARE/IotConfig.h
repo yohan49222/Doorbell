@@ -58,6 +58,8 @@ struct Required
      bool relayNcOrNo = true;
      uint32_t debounceTime = 0;
      uint32_t buttonPresseCountMax = 0;
+     uint32_t relayAutoOff = 1;
+     unsigned long relayAutoOffAfter = 200;
 };
 
 class IotConfig : private Helper
