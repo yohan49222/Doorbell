@@ -12,12 +12,14 @@
 
 **HTTP**, Le protocole http sera utilisé si le MQTT n'est pas disponible. 
 </br></br>
-# Configuration Info 
+# Configuration Info :
 
 ### *!!! IMPORTANT* :
 
 * **1** - Vous devez faire une premiere ***compilation*** de votre projet pour générer le  fichier **"config.json"** .
 * **2** - Vous devez ensuite éditer ce meme fichier avec vos parametres
+
+
 
 <details><summary>Parametre JSON</summary>
 <p>
@@ -83,14 +85,240 @@
 ```
 </p>
 </details>
-</br>
+</br></br>
+
+# Code exemples :
+
+<details><summary>Minimum main.cpp</summary>
+<p>
+
+```c
+#include "IOB_IOT.h"
+//creation de la classe IOB_IOT (singleton)
+IOB_IOT *iob = IOB_IOT::GetInstance();
+
+void setup()
+{
+     Serial.begin(115200L);
+     delay(200);
+
+     // Lance le wifi , connecte, le mqtt, prepare le serveur web
+     iob->Run();
+}
+
+void loop()
+{
+     // Loop IOB_IOT
+     iob->Loop();
+}
+```
+</p>
+</details>
+
+<details><summary>Voir les messages entrant et sortant http / mqtt / serveur web</summary>
+<p>
+
+```c
+#include "IOB_IOT.h"
+//creation de la classe IOB_IOT (singleton)
+IOB_IOT *iob = IOB_IOT::GetInstance();
+
+// Procedure de reception de message Http/Mqtt
+void MessageRecep(IOB_IOTMessageRecevedEventArgs e)
+{
+     for (String s : e.MessageList())
+     {
+          Serial.println("[" + e.SendProtoleString() + "] " + s);
+     }
+     if (e.State() == 1)
+     {
+          dingdong(false, true);
+     }
+     else if (e.State() == 0)
+     {
+          digitalWrite(RELAY_PIN, NCORNO ? HIGH : LOW);
+     }
+     e.Handled(true);
+}
+
+// Procedure de reception de message Http/Mqtt
+void MessageSend(IOB_IOTMessageSendedEventArgs e)
+{
+     for (String s : e.MessageList())
+     {
+          Serial.println("[" + e.SendProtoleString() + "] " + s);
+     }
+}
+
+
+void setup()
+{
+     Serial.begin(115200L);
+     delay(200);
+
+     // Evenement declanche sur reception de commande mqtt
+     iob->OnMqttRecep(MessageRecep);
+
+     // Evenement declanché apres envois de commande mqtt a Domoticz
+     iob->OnMqttSend(MessageSend);
+
+     // Evenement declanché sur requette web : http://<ip>/switchOn ou switchOff
+     iob->OnWebRecep(MessageRecep);
+
+     // Evenement declanché apres envois de la reponse
+     // au client web: http://<ip>/switchOn ou switchOff
+     iob->OnWebSend(MessageSend);
+
+     // Envenement declanché apres envois de commande en http
+     // Le protocole prioritaire est le mqtt , 
+     // note: le http est utilisé si le mqtt est désactivé ou déconnecté
+     iob->OnHttpSend(MessageSend);
+
+     // Lance le wifi , connecte, le mqtt, prepare le serveur web
+     iob->Run();
+}
+
+void loop()
+{
+     // Loop IOB_IOT
+     iob->Loop();
+}
+```
+</p>
+</details>
+
+<details>
+<summary>Voir les connections WIFI / MQTT</summary>
+<p>
+
+```c
+#include "IOB_IOT.h"
+//creation de la classe IOB_IOT (singleton)
+IOB_IOT *iob = IOB_IOT::GetInstance();
+
+// Procedure de connection / deconnection du Wifi
+void WifiStateChanged(IOB_IOTWifiStateChangedEventArgs e)
+{
+     for (String s : e.MessageList())
+     {
+          Serial.println("[WIFI] " + s);
+     }
+}
+
+// Procedure de connection / deconnection du Mqtt
+void MqttStateChanged(IOB_IOTMqttStateChangedEventArgs e)
+{
+     for (String s : e.MessageList())
+     {
+          Serial.println("[MQTT] " + s);
+     }
+}
+
+void setup()
+{
+     Serial.begin(115200L);
+     delay(200);
+
+     //Evenement déclanché apres connection ou déconnection du Mqtt
+     iob->OnMqttStateChanged(MqttStateChanged);
+
+     //Evenement déclanché apres connection ou déconnection du WIFI
+     iob->OnWifiStateChanged(WifiStateChanged);
+
+     // Lance le wifi , connecte, le mqtt, prepare le serveur web
+     iob->Run();
+}
+
+void loop()
+{
+     // Loop IOb_IOT
+     iob->Loop();
+}
+```
+</p>
+</details>
+
+
+<details>
+<summary>Action sur le bouton</summary>
+<p>
+
+```c
+#include "IOB_IOT.h"
+//creation de la classe IOB_IOT (singleton)
+IOB_IOT *iob = IOB_IOT::GetInstance();
+
+// DINGDONG CUSTON
+void dingdong(bool sendOn, bool sendOff)
+{
+
+     Serial.println("[MAIN] Process DINGDONG START ( custum process )");
+
+     if (sendOn)
+          iob->SendData(RelayState::ON); // Informe domoticz
+
+     Serial.println("[MAIN] Ding ( relay ON )");
+     digitalWrite(RELAY_PIN, NCORNO ? LOW : HIGH); // Change la position du relai
+     
+     Serial.println("[MAIN] Ding ( pause 200ms )");
+
+     delay(200); // Ch'tite pause
+     
+     digitalWrite(RELAY_PIN, NCORNO ? HIGH : LOW); // Rechange la position du relai
+
+
+     Serial.println("[MAIN] Ding ( pause 1s Show state in Domoticz )");
+     delay(1000);
+     
+     if (sendOff)
+          iob->SendData(RelayState::OFF); // Informe domoticz
+
+     Serial.println("[MAIN] Process DINGDONG END");
+}
+
+//bouton presse event 
+void ButtonPressed(IOB_IOTButtonPressedEventArgs e)
+{
+     // Appel de la fonction dingdong avec parametre true/true .... 
+     une vache qui p...... Stoppppp
+     // le premier 'true' indique de l'on souhaite prevenir domoticz que le bouton est sur ON
+     // Le deuxieme 'true' indique de l'on souhaite prevenir domoticz que le relai en sur OFF
+     dingdong(true, true);
+
+     // Stop la propagation de l'évenement si true / 
+     // si false , IOB_IOB activera le relai pendant 200ms puis le coupera
+     e.Handled(true);
+}
+
+void setup()
+{
+     Serial.begin(115200L);
+     delay(200);
+
+     //Evenement déclanché apres sur l'appuis de contacteur de "sonette"
+     iob->OnButtonPressed(ButtonPressed);
+
+     // Lance le wifi , connecte, le mqtt, prepare le serveur web
+     iob->Run();
+}
+
+void loop()
+{
+     // Loop IOb_IOT
+     iob->Loop();
+}
+```
+</p>
+</details>
+
+
+
+
 </br>
 
 # Liens  :
 
 ![](https://github.com/yohan49222/Doorbell/blob/main/images/logo98-98.png)
-
-
 
 *  Voir mes vidéos [**Youtube**](https://www.youtube.com/channel/UCCFsJROyzppyjq3WvpNAwGA).
 *  Contactez-moi via ma page facebook  [**IciOnBricole**](https://www.facebook.com/IciOnBricole).

@@ -58,19 +58,6 @@ void MqttStateChanged(IOB_IOTMqttStateChangedEventArgs e)
      }
 }
 
-//bouton presse event 
-void ButtonPressed(IOB_IOTButtonPressedEventArgs e)
-{
-     // Appel de la fonction dingdong avec parametre true/true .... une vache qui p...... Stoppppp
-     // le premier 'true' indique de l'on souhaite prevenir domoticz que le bouton est sur ON
-     // Le deuxieme 'true' indique de l'on souhaite prevenir domoticz que le relai en sur OFF
-     dingdong(true, true);
-
-     // Stop la propagation de l'évenement si true / 
-     // si false , IOB_IOB activera le relai pendant 200ms puis le coupera
-     e.Handled(true);
-}
-
 // DINGDONG CUSTON
 void dingdong(bool sendOn, bool sendOff)
 {
@@ -99,6 +86,19 @@ void dingdong(bool sendOn, bool sendOff)
      Serial.println("[MAIN] Process DINGDONG END");
 }
 
+//bouton presse event 
+void ButtonPressed(IOB_IOTButtonPressedEventArgs e)
+{
+     // Appel de la fonction dingdong avec parametre true/true .... une vache qui p...... Stoppppp
+     // le premier 'true' indique de l'on souhaite prevenir domoticz que le bouton est sur ON
+     // Le deuxieme 'true' indique de l'on souhaite prevenir domoticz que le relai en sur OFF
+     dingdong(true, true);
+
+     // Stop la propagation de l'évenement si true / 
+     // si false , IOB_IOB activera le relai pendant 200ms puis le coupera
+     e.Handled(true);
+}
+
 void setup()
 {
      Serial.begin(115200L);
@@ -106,6 +106,7 @@ void setup()
 
      // Evenement declanche sur reception de commande mqtt
      iob->OnMqttRecep(MessageRecep);
+
      // Evenement declanché apres envois de commande mqtt a Domoticz
      iob->OnMqttSend(MessageSend);
 

@@ -131,19 +131,6 @@ public:
      void OnHttpSend(HttpSend handler);
      void OnWifiStateChanged(WifiState handler);
      void OnButtonPressed(BtPress handler);
-
-     // void OnMqttSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-     // void OnMqttRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
-     // void OnMqttStateChanged(std::function<void(IOB_IOTMqttStateChangedEventArgs &)> handler);
-
-     // void OnWebSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-     // void OnWebRecep(std::function<void(IOB_IOTMessageRecevedEventArgs &)> handler);
-
-     // void OnHttpSend(std::function<void(IOB_IOTMessageSendedEventArgs &)> handler);
-
-     // void OnWifiStateChanged(std::function<void(IOB_IOTWifiStateChangedEventArgs &)> handler);
-
-     // void OnButtonPressed(std::function<void(IOB_IOTButtonPressedEventArgs &)> handler);
 };
 
 #endif /* IOB_IOT_H */
