@@ -56,6 +56,7 @@ def initialConf():
             "TOPICOUT":"domoticz/in",
             "MQTT_SERVER":"192.168.1.2",
             "MQTT_PORT":"1883",
+            "INTERVALCONNECT":"1000",
             "MQTT_LOGIN":"",
             "MQTT_PASSWORD":""
         }
@@ -131,7 +132,8 @@ def ConfigH():
             #define MQTT_PORT 1883 
             #define TOPICIN "domoticz/out" 
             #define TOPICOUT "domoticz/in" 
-            #define MQTT_SERVER "192.168.1.2" 
+            #define MQTT_SERVER "192.168.1.2"
+            #define INTERVALCONNECT 1000
             #define MQTT_LOGIN "login"
             #define MQTT_PASSWORD "password"
         #endif /* USE_MQTT */ """

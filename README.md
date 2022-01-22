@@ -78,6 +78,7 @@
         "TOPICOUT"            :"domoticz/in",  /* Topic entrant */
         "MQTT_SERVER"         :"192.168.1.2",  /* Adresse ip du broker MQTT */
         "MQTT_PORT"           :"1883",         /* Port du broker MQTT */
+        "INTERVALCONNECT"     :"1000",         /* Internal de tentative de connection mqtt */
         "MQTT_LOGIN"          :"",             /* Login MQTT ( optionel suivant confiruration du broker ) */
         "MQTT_PASSWORD"       :""              /* Mot de passe MQTT ( optionel suivant confiruration du broker ) */
     }

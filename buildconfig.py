@@ -95,7 +95,7 @@ if os.path.isfile('config.json'):
           if check and int(check) == 1:
                AddDefine("USE_MQTT")
                AddValuesInCPP(conf, ["TOPICIN", "TOPICOUT", "MQTT_SERVER",
-                           "MQTT_LOGIN", "MQTT_PASSWORD", "MQTT_PORT"], "MQTT")
+                           "MQTT_LOGIN", "MQTT_PASSWORD", "MQTT_PORT","INTERVALCONNECT"], "MQTT")
 
           check = conf["USE_HTTP"]
           if check and int(check) == 1:

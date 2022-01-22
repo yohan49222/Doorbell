@@ -13,6 +13,8 @@
 //creation de la classe IOB_IOT (singleton)
 IOB_IOT *iob = IOB_IOT::GetInstance();
 
+void dingdong(bool sendOn, bool sendOff);
+
 // Procedure de reception de message Http/Mqtt
 void MessageRecep(IOB_IOTMessageRecevedEventArgs e)
 {

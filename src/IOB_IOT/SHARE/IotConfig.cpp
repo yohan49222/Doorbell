@@ -64,6 +64,11 @@ IotConfig::IotConfig()
 #ifdef MQTT_PASSWORD
      mqtt.password = DefinedString((String)MQTT_PASSWORD) && !EqualString((String)MQTT_PASSWORD, "password") ? (String)MQTT_PASSWORD : emptyString;
 #endif
+
+#ifdef INTERVALCONNECT
+     mqtt.intervalConnect = DefinedInt(INTERVALCONNECT) ? INTERVALCONNECT : 1000;
+#endif
+
 #endif
 
 #ifdef USE_HTTP
