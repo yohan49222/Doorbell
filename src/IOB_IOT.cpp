@@ -81,7 +81,6 @@ void IOB_IOT::Loop()
 #ifdef USE_WIFI
 
      WifiConfig w = getConfigWifi();
-     // Si l'objet est connecté au réseau, on effectue les tâches qui doivent l'être dans ce cas
      if (WiFi.isConnected())
      {
 #ifdef USE_MQTT

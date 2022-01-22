@@ -18,7 +18,8 @@ Vous devez ensuite editer ce meme fichier avec vos parametres
 **HTTP**, Le protocole http sera utilisé si le MQTT n'est pas disponible. 
 
 ## Configuration Info 
-Parametre :
+
+Parametre JSON:
 {
     "UPLOAD_WITH_OTA":"0",          /* Utilisation de l'OTA pour upload */
     "RELAY_PIN":"0",                /* Numéro de Pin du relai ( normalement 0) */
