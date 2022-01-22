@@ -1,7 +1,7 @@
 # *** Firmware pour module relay ESP01-S 1M ***
 
 ![](https://github.com/yohan49222/Doorbell/blob/main/images/relai%20esp01_.jpg) 
-
+</br></br>
 |   Integation|Optionnel|Depend|Commentaire|
 | :------|:-----|:-----|:-----|
 |   WIFI       |    yes    |    config.json    |    |
@@ -11,7 +11,7 @@
 |   HTTP       |    yes    |    MQTT      | Surchargé par MQTT   |
 
 **HTTP**, Le protocole http sera utilisé si le MQTT n'est pas disponible. 
-
+</br></br>
 # Configuration Info 
 
 ### *!!! IMPORTANT* :
@@ -77,12 +77,17 @@
         "MQTT_SERVER"         :"192.168.1.2",  /* Adresse ip du broker MQTT */
         "MQTT_PORT"           :"1883",         /* Port du broker MQTT */
         "MQTT_LOGIN"          :"",             /* Login MQTT ( optionel suivant confiruration du broker ) */
-        "MQTT_PASSWORD"       :""              /* Mot de passe MQTT ( optionel suivant confiruration du broker )
+        "MQTT_PASSWORD"       :""              /* Mot de passe MQTT ( optionel suivant confiruration du broker ) */
     }
 }
 ```
 </p>
 </details>
+</br>
+</br>
 
-### *Contactez-moi* :
-<a link="https://www.youtube.com/channel/UCCFsJROyzppyjq3WvpNAwGA">![](https://github.com/yohan49222/Doorbell/blob/main/images/logo98-98.png)</a>
+# Liens  :
+
+![](https://github.com/yohan49222/Doorbell/blob/main/images/logo98-98.png)
+* **Youtube** - <a link="https://www.youtube.com/channel/UCCFsJROyzppyjq3WvpNAwGA">Voir mes vidéos</a>
+* **Facebook** - <a link="https://www.facebook.com/IciOnBricole">Contactez-moi via ma page facebook IciOnBricole</a>
