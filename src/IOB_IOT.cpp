@@ -64,11 +64,28 @@ void IOB_IOT::Run()
 
 void IOB_IOT::Loop()
 {
+     Required req = getRequired();
+     if (buttonPresseCount >= req.buttonPresseCountMax)
+     {
+          buttonPresseCount = 0;
+          IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs();
+          buttonPressedEventHandler.fire(e);
+          if (!e.Handled() && req.relayAutoOff)
+          {
+               digitalWrite(req.relayPin, req.relayNcOrNo ? LOW : HIGH);
+               delay(req.relayAutoOffAfter);
+               digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);
+          }
+          Serial.println("button pressed");
+     }
+
+
 #ifdef USE_WIFI
 
      bool connected = IOB_IOTWIFI::Loop(this);
-     if(connected)
-     {
+     if(!connected)
+          return; /** break loop */
+
 #ifdef USE_MQTT
           LoopMqtt(this);
 #endif
@@ -84,24 +101,7 @@ void IOB_IOT::Loop()
 #ifdef USE_OTA
           ArduinoOTA.handle();
 #endif /* USE_OTA */
-     }
-
 #endif /* USE_WIFI */
-
-     Required req = getRequired();
-     if (buttonPresseCount >= req.buttonPresseCountMax)
-     {
-          buttonPresseCount = 0;
-          IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs();
-          buttonPressedEventHandler.fire(e);
-          if (!e.Handled() && req.relayAutoOff)
-          {
-               digitalWrite(req.relayPin, req.relayNcOrNo ? LOW : HIGH);
-               delay(req.relayAutoOffAfter);
-               digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);
-          }
-          Serial.println("button pressed");
-     }
 }
 
 void IOB_IOT::OnMqttRecep(MqttRecep handler)
@@ -195,31 +195,4 @@ void IOB_IOT::SendData(RelayState state)
 #endif /* USE_WIFI */
 }
 
-/* FONCTIONS EN COMPILATION CONDITIONNEE */
-#ifdef USE_WIFI
 
-// void IOB_IOT::OnConnected(const WiFiEventStationModeConnected &event)
-// {
-//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, "Connecté Adresse IP : " + WiFi.localIP().toString());
-//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-// }
-
-// void IOB_IOT::OnDisconnected(const WiFiEventStationModeDisconnected &event)
-// {
-//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::DISCONNECETD, "Déconnecté !!! :" + String(event.reason));
-//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-// }
-
-// void IOB_IOT::OnGotIP(const WiFiEventStationModeGotIP &event)
-// {
-//      std::vector<String> messages = {
-//          String("Adresse IP : " + WiFi.localIP().toString()),
-//          String("Passerelle IP : " + WiFi.gatewayIP().toString()),
-//          String("DNS IP : " + WiFi.dnsIP().toString()),
-//          String("Puissance de réception : " + String(WiFi.RSSI()))};
-
-//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, messages);
-//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-// }
-
-#endif /* USE_WIFI */
