@@ -8,7 +8,8 @@
 #include "IOB_IOT/SHARE/SharedFunction.h"
 #include "IOB_IOT/SHARE/IotConfig.h"
 #ifdef USE_WIFI
-#include <ESP8266WiFi.h>
+#include "IOB_IOT/IOB_IOTWIFI.h"
+//#include <ESP8266WiFi.h>
 #ifdef USE_MQTT
 #include "IOB_IOT/IOB_IOTMQTT.h"
 #endif
@@ -32,6 +33,8 @@
 
 class IOB_IOT : public IotConfig, public SharedFunction
 #ifdef USE_WIFI
+    ,
+                private IOB_IOTWIFI
 #ifdef USE_HTTP
     ,
                 private IOB_IOTHTTP
@@ -52,7 +55,10 @@ class IOB_IOT : public IotConfig, public SharedFunction
 {
 public:
 #ifdef USE_WIFI
-
+     using IOB_IOTWIFI::espClient;
+     using IOB_IOTWIFI::wifiStateChangedEventHandler;
+     using IOB_IOTWIFI::Begin;
+     using IOB_IOTWIFI::Loop;
 #ifdef USE_OTA
      using IOB_IOTOTA::init;
 #endif
@@ -97,15 +103,15 @@ private:
 
 #ifdef USE_WIFI
 
-     IOB_IOTWifiStateEventHandler wifiStateChangedEventHandler;
+     
 
-     static void OnConnected(const WiFiEventStationModeConnected &event);
-     static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
-     static void OnGotIP(const WiFiEventStationModeGotIP &event);
+     //static void OnConnected(const WiFiEventStationModeConnected &event);
+     //static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
+     //static void OnGotIP(const WiFiEventStationModeGotIP &event);
 
-     WiFiEventHandler onConnectedHandler;
-     WiFiEventHandler onGotIPHandler;
-     WiFiEventHandler onDisConnectedHandler;
+     //WiFiEventHandler onConnectedHandler;
+     //WiFiEventHandler onGotIPHandler;
+     //WiFiEventHandler onDisConnectedHandler;
 
 #endif /* USE_WIFI */
 
@@ -122,7 +128,8 @@ public:
 
      void SendData(RelayState state);
 #ifdef USE_WIFI
-     WiFiClient espClient;
+     //WiFiClient espClient;
+     
 #endif
      void OnMqttSend(MqttSend handler);
      void OnMqttRecep(MqttRecep handler);

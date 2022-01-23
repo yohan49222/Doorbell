@@ -93,26 +93,26 @@ private:
 
 public:
      IotConfig();
-     Required getRequired();
+     Required getRequired() const;
 
 #ifdef USE_WIFI
-     WifiConfig getConfigWifi();
+     WifiConfig getConfigWifi() const;
 #ifdef USE_IPFIXE
-     IpConfig getConfigIp();
+     IpConfig getConfigIp() const;
 #endif
 #ifdef USE_OTA
-     OtaConfig getConfigOta();
+     OtaConfig getConfigOta() const;
 #endif
 #ifdef USE_MQTT
-     void setPreviousMillis(unsigned long i);
+     void setPreviousMillis(unsigned long i); 
      void setintervalConnect(unsigned long i);
-     Mqtt getMqtt();
+     Mqtt getMqtt() const;
 #endif
 #ifdef USE_HTTP
-     Domotic getDomotic();
+     Domotic getDomotic() const;
 #endif
 #ifdef USE_WEBSERVER
-     uint32_t getWebServerPort();
+     uint32_t getWebServerPort() const;
 #endif
 #endif
 };

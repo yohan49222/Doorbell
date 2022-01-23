@@ -126,24 +126,24 @@ IotConfig::IotConfig()
 #endif
 }
 
-Required IotConfig::getRequired()
+Required IotConfig::getRequired() const
 {
      return required;
 }
 
 #ifdef USE_WIFI
-WifiConfig IotConfig::getConfigWifi()
+WifiConfig IotConfig::getConfigWifi() const
 {
      return configWifi;
 }
 #ifdef USE_IPFIXE
-IpConfig IotConfig::getConfigIp()
+IpConfig IotConfig::getConfigIp() const
 {
      return configIp;
 }
 #endif
 #ifdef USE_OTA
-OtaConfig IotConfig::getConfigOta()
+OtaConfig IotConfig::getConfigOta() const
 {
      return configOta;
 }
@@ -157,19 +157,19 @@ void IotConfig::setPreviousMillis(unsigned long i)
 {
      mqtt.previousMillis = i;
 }
-Mqtt IotConfig::getMqtt()
+Mqtt IotConfig::getMqtt() const
 {
      return mqtt;
 }
 #endif
 #ifdef USE_HTTP
-Domotic IotConfig::getDomotic()
+Domotic IotConfig::getDomotic() const
 {
      return domo;
 }
 #endif
 #ifdef USE_WEBSERVER
-uint32_t IotConfig::getWebServerPort()
+uint32_t IotConfig::getWebServerPort() const
 {
      return webServerPort;
 }

@@ -43,27 +43,12 @@ void IOB_IOT::Run()
      digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);
 
 #ifdef USE_WIFI
+
 #ifdef USE_OTA
      IOB_IOTOTA::init(this);
 #endif
-     WifiConfig w = getConfigWifi();
-     if (w.ssid != emptyString && w.password != emptyString)
-     {
-          WiFi.mode(WIFI_STA);
 
-#ifdef USE_IPFIXE
-          IpConfig ips = getConfigIp();
-          if (ips.ip.isSet() && ips.gateWay.isSet() && ips.subnet.isSet() && ips.dns.isSet())
-               WiFi.config(ips.ip, ips.gateWay, ips.subnet, ips.dns);
-#endif /* USE_IPFIXE */
-
-          WiFi.setHostname(req.nomModule.c_str());
-          WiFi.begin(w.ssid, w.password);
-
-          onConnectedHandler = WiFi.onStationModeConnected(IOB_IOT::OnConnected);
-          onGotIPHandler = WiFi.onStationModeGotIP(IOB_IOT::OnGotIP);
-          onDisConnectedHandler = WiFi.onStationModeDisconnected(IOB_IOT::OnDisconnected);
-     }
+     IOB_IOTWIFI::Begin(this);
 
 #ifdef USE_WEBSERVER
      IOB_IOTWEBSERVER::init(this);
@@ -81,29 +66,25 @@ void IOB_IOT::Loop()
 {
 #ifdef USE_WIFI
 
-     WifiConfig w = getConfigWifi();
-     if (WiFi.isConnected())
+     bool connected = IOB_IOTWIFI::Loop(this);
+     if(connected)
      {
 #ifdef USE_MQTT
           LoopMqtt(this);
 #endif
-     }
-     else if (w.ssid != emptyString && w.password != emptyString)
-     {
-          if (WiFi.waitForConnectResult() != WL_CONNECTED)
-               return;
+
 #ifdef USE_OTA
           ArduinoOTA.begin();
 #endif /* USE_OTA */
-     }
 
 #ifdef USE_WEBSERVER
-     IOB_IOTWEBSERVER::Loop(this);
+          IOB_IOTWEBSERVER::Loop(this);
 #endif /* USE_WEBSERVER */
 
 #ifdef USE_OTA
-     ArduinoOTA.handle();
+          ArduinoOTA.handle();
 #endif /* USE_OTA */
+     }
 
 #endif /* USE_WIFI */
 
@@ -217,28 +198,28 @@ void IOB_IOT::SendData(RelayState state)
 /* FONCTIONS EN COMPILATION CONDITIONNEE */
 #ifdef USE_WIFI
 
-void IOB_IOT::OnConnected(const WiFiEventStationModeConnected &event)
-{
-     IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, "Connecté Adresse IP : " + WiFi.localIP().toString());
-     IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-}
+// void IOB_IOT::OnConnected(const WiFiEventStationModeConnected &event)
+// {
+//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, "Connecté Adresse IP : " + WiFi.localIP().toString());
+//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
+// }
 
-void IOB_IOT::OnDisconnected(const WiFiEventStationModeDisconnected &event)
-{
-     IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::DISCONNECETD, "Déconnecté !!! :" + String(event.reason));
-     IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-}
+// void IOB_IOT::OnDisconnected(const WiFiEventStationModeDisconnected &event)
+// {
+//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::DISCONNECETD, "Déconnecté !!! :" + String(event.reason));
+//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
+// }
 
-void IOB_IOT::OnGotIP(const WiFiEventStationModeGotIP &event)
-{
-     std::vector<String> messages = {
-         String("Adresse IP : " + WiFi.localIP().toString()),
-         String("Passerelle IP : " + WiFi.gatewayIP().toString()),
-         String("DNS IP : " + WiFi.dnsIP().toString()),
-         String("Puissance de réception : " + String(WiFi.RSSI()))};
+// void IOB_IOT::OnGotIP(const WiFiEventStationModeGotIP &event)
+// {
+//      std::vector<String> messages = {
+//          String("Adresse IP : " + WiFi.localIP().toString()),
+//          String("Passerelle IP : " + WiFi.gatewayIP().toString()),
+//          String("DNS IP : " + WiFi.dnsIP().toString()),
+//          String("Puissance de réception : " + String(WiFi.RSSI()))};
 
-     IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, messages);
-     IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
-}
+//      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, messages);
+//      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
+// }
 
 #endif /* USE_WIFI */
