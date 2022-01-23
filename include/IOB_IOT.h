@@ -33,37 +33,37 @@
 
 class IOB_IOT : public IotConfig, public SharedFunction
 #ifdef USE_WIFI
-    ,
-                private IOB_IOTWIFI
+    ,private IOB_IOTWIFI
 #ifdef USE_HTTP
-    ,
-                private IOB_IOTHTTP
-#endif
+    ,private IOB_IOTHTTP
+#endif /* USE_HTTP */
 #ifdef USE_MQTT
-    ,
-                private IOB_IOTMQTT
-#endif
+    ,private IOB_IOTMQTT
+#endif /* USE_MQTT */
 #ifdef USE_OTA
-    ,
-                private IOB_IOTOTA
-#endif
+    ,private IOB_IOTOTA
+#endif /* USE_OTA */
 #ifdef USE_WEBSERVER
-    ,
-                private IOB_IOTWEBSERVER
-#endif
-#endif
+    ,private IOB_IOTWEBSERVER
+#endif /* USE_WEBSERVER */
+#endif /* USE_WIFI */
 {
+
 public:
+
 #ifdef USE_WIFI
+
      using IOB_IOTWIFI::espClient;
      using IOB_IOTWIFI::wifiStateChangedEventHandler;
      using IOB_IOTWIFI::Begin;
      using IOB_IOTWIFI::Loop;
+
 #ifdef USE_OTA
      using IOB_IOTOTA::init;
-#endif
+#endif /* USE_OTA */
 
 #ifdef USE_MQTT
+
      using IOB_IOTMQTT::CanSendMqtt;
      using IOB_IOTMQTT::CanUseMqtt;
      using IOB_IOTMQTT::CanUseMqttSecure;
@@ -75,16 +75,21 @@ public:
      using IOB_IOTMQTT::ParseMqttMessage;
      using IOB_IOTMQTT::ReconnectMQTT;
      using IOB_IOTMQTT::Sendata;
-#endif
+
+#endif /* USE_MQTT */
 
 #ifdef USE_HTTP
+
      using IOB_IOTHTTP::CreateHttpMessageForDomoticz;
      using IOB_IOTHTTP::http_Send_EventHandler;
      using IOB_IOTHTTP::Sendata;
-#endif
+
+#endif /* USE_HTTP */
+
 #if defined(USE_HTTP) or defined(USE_WEBSERVER) or defined(USE_MQTT)
      using SharedFunction::CreateJsonMessageForDomoticz;
-#endif
+#endif /* */
+
 #ifdef USE_WEBSERVER
      using IOB_IOTWEBSERVER::CreateJsonMessageForDebug;
      using IOB_IOTWEBSERVER::init;
@@ -92,45 +97,17 @@ public:
      using IOB_IOTWEBSERVER::webServer;
      using IOB_IOTWEBSERVER::webServer_Request_EventHandler;
      using IOB_IOTWEBSERVER::webServer_Response_EventHandler;
-#endif
-#endif
-
-private:
-     static IOB_IOT *inst_;
-     IOB_IOT();
-     IOB_IOT(const IOB_IOT &);
-     IOB_IOT &operator=(const IOB_IOT &);
-
-#ifdef USE_WIFI
-
-     
-
-     //static void OnConnected(const WiFiEventStationModeConnected &event);
-     //static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
-     //static void OnGotIP(const WiFiEventStationModeGotIP &event);
-
-     //WiFiEventHandler onConnectedHandler;
-     //WiFiEventHandler onGotIPHandler;
-     //WiFiEventHandler onDisConnectedHandler;
+#endif /* USE_WEBSERVER */
 
 #endif /* USE_WIFI */
 
-     IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
-     volatile uint32_t debounceTimer = 0;
-     uint32_t buttonPresseCount = 0;
-     static void IRAM_ATTR ButtonPressed();
-
-public:
      static IOB_IOT *GetInstance();
      ~IOB_IOT();
      void Loop();
      void Run();
 
      void SendData(RelayState state);
-#ifdef USE_WIFI
-     //WiFiClient espClient;
-     
-#endif
+
      void OnMqttSend(MqttSend handler);
      void OnMqttRecep(MqttRecep handler);
      void OnMqttStateChanged(MqttState handler);
@@ -139,6 +116,17 @@ public:
      void OnHttpSend(HttpSend handler);
      void OnWifiStateChanged(WifiState handler);
      void OnButtonPressed(BtPress handler);
+
+
+private:
+     static IOB_IOT *inst_;
+     IOB_IOT();
+     IOB_IOT(const IOB_IOT &);
+     IOB_IOT &operator=(const IOB_IOT &);
+     IOB_IOTButtonPressedEventHandler buttonPressedEventHandler;
+     volatile uint32_t debounceTimer = 0;
+     uint32_t buttonPresseCount = 0;
+     static void IRAM_ATTR ButtonPressed();
 };
 
 #endif /* IOB_IOT_H */
