@@ -51,15 +51,16 @@ if os.path.isfile('config.json'):
      lines = open('config.json', "r")
      conf = json.loads(lines.read())
 
+     # Require
      AddValuesInCPP(conf, [
                          "RELAY_PIN", "BUTTON_PIN", "DEBOUNCE_TIME","RELAY_AUTO_OFF","RELAY_AUTO_OFF_AFTER",
-                         "BUTTON_PRESS_COUNT_MAX", "IDXDEVICE", "NOMMODULE"])
+                         "BUTTON_PRESS_COUNT_MAX", "IDXDEVICE", "NOMMODULE","NCORNO"])
 
-     check = conf["NCORNO"]
-     if check and int(check) == 1:
-          AddBoolean("NCORNO", "true")
-     else:
-          AddBoolean("NCORNO", "false")
+     #check = conf["NCORNO"]
+     #if check and int(check) == 1:
+     #     AddBoolean("NCORNO", "true")
+     #else:
+     #     AddBoolean("NCORNO", "false")
 
      check = conf["USE_WIFI"]
      if check and int(check) == 1:

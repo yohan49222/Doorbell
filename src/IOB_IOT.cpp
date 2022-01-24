@@ -28,7 +28,7 @@ void IRAM_ATTR IOB_IOT::ButtonPressed()
      {
           inst->debounceTimer = millis();
           inst->buttonPresseCount += 1;
-          Serial.printf("Button has been pressed %u times\n", inst->buttonPresseCount);
+          //Serial.printf("Button has been pressed %u times\n", inst->buttonPresseCount);
      }
 }
 
@@ -55,8 +55,7 @@ void IOB_IOT::Run()
 #endif
 
 #ifdef USE_MQTT
-     if (CanUseMqtt(this))
-          IOB_IOTMQTT::init(this);
+     IOB_IOTMQTT::init(this);
 #endif
 
 #endif /* USE_WIFI */
@@ -68,15 +67,18 @@ void IOB_IOT::Loop()
      if (buttonPresseCount >= req.buttonPresseCountMax)
      {
           buttonPresseCount = 0;
-          IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs();
+          IOB_IOTButtonPressedEventArgs e = IOB_IOTButtonPressedEventArgs("button pressed");
           buttonPressedEventHandler.fire(e);
-          if (!e.Handled() && req.relayAutoOff)
+          if (!e.Handled())
           {
                digitalWrite(req.relayPin, req.relayNcOrNo ? LOW : HIGH);
-               delay(req.relayAutoOffAfter);
-               digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);
+               if(req.relayAutoOff)
+               {
+                    delay(req.relayAutoOffAfter);
+                    digitalWrite(req.relayPin, req.relayNcOrNo ? HIGH : LOW);                    
+               }
+
           }
-          Serial.println("button pressed");
      }
 
 
@@ -178,7 +180,7 @@ void IOB_IOT::SendData(RelayState state)
      bool sendSuccess = false;
 
 #ifdef USE_MQTT
-     if (WiFi.isConnected() && CanSendMqtt(this))
+     if (WiFi.isConnected())
      {
           sendSuccess = IOB_IOTMQTT::Sendata(this, state);
           return;

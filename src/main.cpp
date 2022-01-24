@@ -22,13 +22,13 @@ void MessageRecep(IOB_IOTMessageRecevedEventArgs e)
      {
           Serial.println("[" + e.SendProtoleString() + "] " + s);
      }
-     if (e.State() == 1)
+     if (e.State() == RelayState::ON)
      {
           dingdong(false, true);
      }
-     else if (e.State() == 0)
+     else if (e.State() == RelayState::OFF)
      {
-          digitalWrite(RELAY_PIN, NCORNO ? HIGH : LOW);
+          digitalWrite(iob->getRequired().relayPin, iob->getRequired().relayNcOrNo ? HIGH : LOW);
      }
      e.Handled(true);
 }
@@ -70,13 +70,13 @@ void dingdong(bool sendOn, bool sendOff)
           iob->SendData(RelayState::ON); // Informe domoticz
 
      Serial.println("[MAIN] Ding ( relay ON )");
-     digitalWrite(RELAY_PIN, NCORNO ? LOW : HIGH); // Change la position du relai
+     digitalWrite(iob->getRequired().relayPin, iob->getRequired().relayNcOrNo ? LOW : HIGH); // Change la position du relai
      
      Serial.println("[MAIN] Ding ( pause 200ms )");
 
-     delay(200); // Ch'tite pause
+     delay(iob->getRequired().relayAutoOffAfter); // Ch'tite pause
      
-     digitalWrite(RELAY_PIN, NCORNO ? HIGH : LOW); // Rechange la position du relai
+     digitalWrite(iob->getRequired().relayPin, iob->getRequired().relayNcOrNo ? HIGH : LOW); // Rechange la position du relai
 
 
      Serial.println("[MAIN] Ding ( pause 1s Show state in Domoticz )");
@@ -88,9 +88,18 @@ void dingdong(bool sendOn, bool sendOff)
      Serial.println("[MAIN] Process DINGDONG END");
 }
 
-//bouton presse event 
+/**
+ * @brief 
+ * 
+ * @param e 
+ */
 void ButtonPressed(IOB_IOTButtonPressedEventArgs e)
 {
+     for (String s : e.MessageList())
+     {
+          Serial.println("[BUTTON] " + s);
+     }
+
      // Appel de la fonction dingdong avec parametre true/true .... une vache qui p...... Stoppppp
      // le premier 'true' indique de l'on souhaite prevenir domoticz que le bouton est sur ON
      // Le deuxieme 'true' indique de l'on souhaite prevenir domoticz que le relai en sur OFF

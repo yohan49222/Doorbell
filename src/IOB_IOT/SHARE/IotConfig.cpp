@@ -19,7 +19,7 @@ IotConfig::IotConfig()
 #endif
 
 #ifdef NCORNO
-     required.relayNcOrNo = NCORNO;
+     required.relayNcOrNo = DefinedInt(NCORNO) && NCORNO == 1 ? true : false;
 #endif
 
 #ifdef DEBOUNCE_TIME

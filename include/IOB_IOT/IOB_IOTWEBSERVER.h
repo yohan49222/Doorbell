@@ -21,6 +21,8 @@ public:
      bool CreateJsonMessageForDebug(IOB_IOT *iob, String &out);
      IOB_IOTMessageRecevedEventHandler webServer_Request_EventHandler;
      IOB_IOTMessageSendedventHandler  webServer_Response_EventHandler;
+
+     friend IOB_IOT;
 };
 
 #endif

@@ -5,6 +5,9 @@
 
 void IOB_IOTMQTT::init(IOB_IOT *iob)
 {
+     if (!CanUseMqtt(iob))
+          return;
+
      MQTT_Client.setBufferSize(512);
      MQTT_Client.setServer(iob->getMqtt().ip, iob->getMqtt().port);
      MQTT_Client.setClient(iob->espClient);
@@ -67,6 +70,10 @@ void IOB_IOTMQTT::ReconnectMQTT(IOB_IOT *iob)
 bool IOB_IOTMQTT::Sendata(IOB_IOT *iob, RelayState state)
 {
      bool sendSuccess = false;
+
+     if(!CanSendMqtt(iob))
+          return false;
+
      String messJson;
      if (iob->CreateJsonMessageForDomoticz(iob, state, messJson))
      {

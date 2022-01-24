@@ -9,8 +9,6 @@ class IOB_IOT;
 class IOB_IOTWIFI
 {
 private:
-     
-
      static void OnConnected(const WiFiEventStationModeConnected &event);
      static void OnDisconnected(const WiFiEventStationModeDisconnected &event);
      static void OnGotIP(const WiFiEventStationModeGotIP &event);
@@ -26,6 +24,7 @@ public:
      WiFiClient espClient;
      IOB_IOTWifiStateEventHandler wifiStateChangedEventHandler;
 
+     friend IOB_IOT;
 };
 
 #endif

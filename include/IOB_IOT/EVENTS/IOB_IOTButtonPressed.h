@@ -5,18 +5,13 @@
 
 class IOB_IOTButtonPressedEventArgs : public IOB_IOTEventArg
 {
-private:
-  bool _handled = false;
-
 public:
-  void Handled(bool handled)
-  {
-    _handled = handled;
-  }
-  bool Handled()
-  {
-    return _handled;
-  }
+     IOB_IOTButtonPressedEventArgs(String message) : IOB_IOTEventArg(message)
+     {
+     }
+     IOB_IOTButtonPressedEventArgs(std::vector<String> messages) : IOB_IOTEventArg(messages)
+     {
+     }
 };
 
 typedef IOB_IOTEventHandler<IOB_IOTButtonPressedEventArgs> IOB_IOTButtonPressedEventHandler;

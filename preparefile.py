@@ -77,99 +77,100 @@ def ConfigH():
     lines = open('config.json', "r")
     conf = json.loads(lines.read())
 
-    content = """/**
-    Ce fichier est utilise pour le developpement seulement 
-    les valeurs sont remplacees par buildconfig.py a la compilation du projet
-    */
-    #ifndef IOB_IOT_CONF_H
-    #define IOB_IOT_CONF_H
+    content = """
+/**
+Ce fichier est utilise pour le developpement seulement 
+les valeurs sont remplacees par buildconfig.py a la compilation du projet
+*/
+#ifndef IOB_IOT_CONF_H
+#define IOB_IOT_CONF_H
 
-    #define RELAY_PIN 0 
-    #define BUTTON_PIN 2 
-    #define DEBOUNCE_TIME 100 
-    #define BUTTON_PRESS_COUNT_MAX 5 
-    #define IDXDEVICE 13 
-    #define NOMMODULE "sonnette" 
-    #define NCORNO true 
-    #define RELAY_AUTO_OFF_AFTER 200
-    #define RELAY_AUTO_OFF 1
+#define RELAY_PIN 0 
+#define BUTTON_PIN 2 
+#define DEBOUNCE_TIME 100 
+#define BUTTON_PRESS_COUNT_MAX 5 
+#define IDXDEVICE 13 
+#define NOMMODULE "sonnette" 
+#define NCORNO 1 
+#define RELAY_AUTO_OFF_AFTER 200
+#define RELAY_AUTO_OFF 1
     
-    """
+"""
 
     check = conf["USE_WIFI"]
     if check and int(check) == 1:
         content += """
-    #define USE_WIFI
-    #ifdef USE_WIFI
+#define USE_WIFI
+#ifdef USE_WIFI
 
-        #define MYSSID "my_ssid" 
-        #define MYSSID_PASSWORD "my_ssid_password" """
+     #define MYSSID "my_ssid" 
+     #define MYSSID_PASSWORD "my_ssid_password" """
 
         check = conf["USE_OTA"]
         if check and int(check) == 1:
             content += """
 
-        #define USE_OTA
-        #ifdef USE_OTA
-            #define OTANAME "default"
-            #define OTAPASSWORD "password"
-        #endif /* USE_OTA */ """
+     #define USE_OTA
+     #ifdef USE_OTA
+          #define OTANAME "default"
+          #define OTAPASSWORD "password"
+     #endif /* USE_OTA */ """
 
         check = conf["USE_IPFIXE"]
         if check and int(check) == 1:
             content += """
 
-        #define USE_IPFIXE
-        #ifdef USE_IPFIXE
-            #define IPFIXE "192.168.1.51" 
-            #define GATEWAY "192.168.1.1" 
-            #define SUBNET "255.255.255.0" 
-            #define DNS "192.168.1.1" 
-        #endif /* USE_IPFIXE */ """
+     #define USE_IPFIXE
+     #ifdef USE_IPFIXE
+          #define IPFIXE "192.168.1.51" 
+          #define GATEWAY "192.168.1.1" 
+          #define SUBNET "255.255.255.0" 
+          #define DNS "192.168.1.1" 
+     #endif /* USE_IPFIXE */ """
 
         check = conf["USE_MQTT"]
         if check and int(check) == 1:
             content += """
 
-        #define USE_MQTT
-        #ifdef USE_MQTT
-            #define MQTT_PORT 1883 
-            #define TOPICIN "domoticz/out" 
-            #define TOPICOUT "domoticz/in" 
-            #define MQTT_SERVER "192.168.1.2"
-            #define INTERVALCONNECT 1000
-            #define MQTT_LOGIN "login"
-            #define MQTT_PASSWORD "password"
-        #endif /* USE_MQTT */ """
+     #define USE_MQTT
+     #ifdef USE_MQTT
+          #define MQTT_PORT 1883 
+          #define TOPICIN "domoticz/out" 
+          #define TOPICOUT "domoticz/in" 
+          #define MQTT_SERVER "192.168.1.2"
+          #define INTERVALCONNECT 1000
+          #define MQTT_LOGIN "login"
+          #define MQTT_PASSWORD "password"
+     #endif /* USE_MQTT */ """
 
         check = conf["USE_HTTP"]
         if check and int(check) == 1:
             content += """
 
-        #define USE_HTTP
-        #ifdef USE_HTTP
-            #define DOMOTIC_SERVER "192.168.1.2" 
-            #define DOMOTIC_PORT 8080 
-        #endif /* USE_HTTP */ """
+     #define USE_HTTP
+     #ifdef USE_HTTP
+          #define DOMOTIC_SERVER "192.168.1.2" 
+          #define DOMOTIC_PORT 8080 
+     #endif /* USE_HTTP */ """
 
         check = conf["USE_WEBSERVER"]
         if check and int(check) == 1:
             content += """
 
-        #define USE_WEBSERVER
-        #ifdef USE_WEBSERVER
-            #define WEBSERVER_PORT 80
-        #endif /* USE_WEBSERVER */ """
+     #define USE_WEBSERVER
+     #ifdef USE_WEBSERVER
+          #define WEBSERVER_PORT 80
+     #endif /* USE_WEBSERVER */ """
 
         check = conf["USE_WIFI"]
         if check and int(check) == 1:
             content += """
 
-    #endif /* USE_WIFI */ """
+#endif /* USE_WIFI */ """
 
     content += """
 
-    #endif /* IOB_IOT_Conf_h */ """
+#endif /* IOB_IOT_Conf_h */ """
 
     fileH = open('include/IOB_IOT_Conf.h', 'w')
     fileH.write(content)
