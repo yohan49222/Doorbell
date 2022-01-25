@@ -1,41 +1,41 @@
 #include "IOB_IOT/IOB_IOTWIFI.h"
 #include "IOB_IOT.h"
 
-bool IOB_IOTWIFI::Loop(IOB_IOT *iob)
+#ifdef USE_WIFI
+
+IOB_IOTWIFI::IOB_IOTWIFI() : IOB_IOTWIFIConfig(), IOB_IOTIpConfig()
 {
-     WifiConfig w = iob->getConfigWifi();
+     Required req = ((IOB_IOT*)this)->getRequired();
+     if (ssid == emptyString || password == emptyString)
+          return;
+
+     WiFi.mode(WIFI_STA);
+
+#ifdef USE_IPFIXE
+     if (ip.isSet() && gateWay.isSet() && subnet.isSet() && dns.isSet())
+          WiFi.config(ip, gateWay, subnet, dns);
+
+#endif /* USE_IPFIXE */
+
+     WiFi.setHostname(req.nomModule.c_str());
+     WiFi.begin(ssid, password);
+
+     onConnectedHandler = WiFi.onStationModeConnected(IOB_IOTWIFI::OnConnected);
+     onGotIPHandler = WiFi.onStationModeGotIP(IOB_IOTWIFI::OnGotIP);
+     onDisConnectedHandler = WiFi.onStationModeDisconnected(IOB_IOTWIFI::OnDisconnected);
+}
+
+bool IOB_IOTWIFI::Loop()
+{
      if (WiFi.isConnected())
           return true;
 
-     else if (w.ssid != emptyString && w.password != emptyString)
+     else if (ssid != emptyString && password != emptyString)
      {
           if (WiFi.waitForConnectResult() != WL_CONNECTED)
                return false;
      }
      return false;
-}
-
-void IOB_IOTWIFI::Begin(IOB_IOT *iob)
-{
-     Required req = iob->getRequired();
-     WifiConfig w = iob->getConfigWifi();
-     if (w.ssid != emptyString && w.password != emptyString)
-     {
-          WiFi.mode(WIFI_STA);
-
-#ifdef USE_IPFIXE
-          IpConfig ips = iob->getConfigIp();
-          if (ips.ip.isSet() && ips.gateWay.isSet() && ips.subnet.isSet() && ips.dns.isSet())
-               WiFi.config(ips.ip, ips.gateWay, ips.subnet, ips.dns);
-#endif /* USE_IPFIXE */
-
-          WiFi.setHostname(req.nomModule.c_str());
-          WiFi.begin(w.ssid, w.password);
-
-          onConnectedHandler = WiFi.onStationModeConnected(IOB_IOTWIFI::OnConnected);
-          onGotIPHandler = WiFi.onStationModeGotIP(IOB_IOTWIFI::OnGotIP);
-          onDisConnectedHandler = WiFi.onStationModeDisconnected(IOB_IOTWIFI::OnDisconnected);
-     }
 }
 
 void IOB_IOTWIFI::OnConnected(const WiFiEventStationModeConnected &event)
@@ -60,4 +60,7 @@ void IOB_IOTWIFI::OnGotIP(const WiFiEventStationModeGotIP &event)
 
      IOB_IOTWifiStateChangedEventArgs e = IOB_IOTWifiStateChangedEventArgs(ConState::CONNECTED, messages);
      IOB_IOT::GetInstance()->wifiStateChangedEventHandler.fire(e);
+
 }
+
+#endif

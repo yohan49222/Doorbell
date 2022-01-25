@@ -3,19 +3,22 @@
 
 #ifdef USE_WEBSERVER
 
-void IOB_IOTWEBSERVER::init(IOB_IOT *iob)
+IOB_IOTWEBSERVER::IOB_IOTWEBSERVER()
 {
+     webServerPort = DefinedInt(WEBSERVER_PORT) ? WEBSERVER_PORT : 80;
+
      webServer.on("/switchOn", IOB_IOTWEBSERVER::SwitchOn);
      webServer.on("/switchOff", IOB_IOTWEBSERVER::SwitchOff);
      webServer.on("/DebugServeur.json", IOB_IOTWEBSERVER::DebugServeur);
-     webServer.begin(iob->getWebServerPort());
+     webServer.begin(webServerPort);
 }
-void IOB_IOTWEBSERVER::Loop(IOB_IOT *iob)
+
+void IOB_IOTWEBSERVER::Loop()
 {
      webServer.handleClient();
 }
 
-bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(IOB_IOT *iob, String &out)
+bool IOB_IOTWEBSERVER::CreateJsonMessageForDebug(String &out)
 {
      StaticJsonBuffer<1024> jsonBuffer;
      StaticJsonBuffer<1024> jsonBuffer2;
@@ -85,13 +88,13 @@ void IOB_IOTWEBSERVER::TraitRequestWeb(IOB_IOT *iob, RelayState state)
 
      if (
 #ifdef USE_HTTP
-         clientIp != iob->getDomotic().ip
+         clientIp != iob->GetHttpIp()
 #else
          true
 #endif
          &&
 #ifdef USE_MQTT
-         clientIp != iob->getMqtt().ip
+         clientIp != iob->GetMqttIp()
 #else
          true
 #endif
@@ -107,7 +110,7 @@ void IOB_IOTWEBSERVER::TraitRequestWeb(IOB_IOT *iob, RelayState state)
      }
      iob->webServer_Request_EventHandler.fire(e);
      String messJson;
-     if (iob->CreateJsonMessageForDomoticz(iob, state, messJson))
+     if (iob->CreateJsonMessageForDomoticz(state, messJson))
           iob->webServer.send(200, "text/json", messJson);
 
      IOB_IOTMessageSendedEventArgs er = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::WEBSERVER);
@@ -131,7 +134,7 @@ void IOB_IOTWEBSERVER::DebugServeur()
 {
      IOB_IOT *iob = IOB_IOT::GetInstance();
      String messJson;
-     if (iob->CreateJsonMessageForDebug(iob, messJson))
+     if (iob->CreateJsonMessageForDebug(messJson))
           iob->webServer.send(200, "application/json", messJson);
 }
 

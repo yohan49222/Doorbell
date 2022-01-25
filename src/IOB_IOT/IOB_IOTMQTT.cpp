@@ -3,51 +3,63 @@
 
 #ifdef USE_MQTT
 
-void IOB_IOTMQTT::init(IOB_IOT *iob)
+IOB_IOTMQTT::IOB_IOTMQTT() : IOB_IOTMqttConfig()
 {
-     if (!CanUseMqtt(iob))
+     IOB_IOT *iob = ((IOB_IOT*)this);
+     if (!CanUseMqtt())
           return;
 
      MQTT_Client.setBufferSize(512);
-     MQTT_Client.setServer(iob->getMqtt().ip, iob->getMqtt().port);
+     MQTT_Client.setServer(ip, port);
      MQTT_Client.setClient(iob->espClient);
      MQTT_Client.setCallback(IOB_IOTMQTT::CallbackMQTT);
 }
-
-bool IOB_IOTMQTT::CanSendMqtt(IOB_IOT *iob)
+IPAddress IOB_IOTMQTT::GetMqttIp()
 {
-     return CanUseMqtt(iob) && MQTT_Client.connected();
+     return ip;
 }
 
-bool IOB_IOTMQTT::CanUseMqtt(IOB_IOT *iob)
+String IOB_IOTMQTT::GetTopicIn()
 {
-     return iob->getMqtt().ip.isSet() && iob->getRequired().idxDevice > 0;
+     return topicIn;
 }
 
-bool IOB_IOTMQTT::CanUseMqttSecure(IOB_IOT *iob)
+bool IOB_IOTMQTT::CanSendMqtt()
 {
-     return iob->getMqtt().login != emptyString && iob->getMqtt().password != emptyString && CanUseMqtt(iob);
+     return CanUseMqtt() && MQTT_Client.connected();
 }
 
-void IOB_IOTMQTT::ReconnectMQTT(IOB_IOT *iob)
+bool IOB_IOTMQTT::CanUseMqtt()
 {
+     Required req = ((IOB_IOT*)this)->getRequired();
+     return ip.isSet() && req.idxDevice > 0;
+}
+
+bool IOB_IOTMQTT::CanUseMqttSecure()
+{
+     return login != emptyString && password != emptyString && CanUseMqtt();
+}
+
+void IOB_IOTMQTT::ReconnectMQTT()
+{
+     Required req = ((IOB_IOT*)this)->getRequired();
      IOB_IOTMqttStateChangedEventArgs e = IOB_IOTMqttStateChangedEventArgs();
-     if (CanUseMqttSecure(iob) && MQTT_Client.connect(iob->getRequired().nomModule.c_str(), iob->getMqtt().login.c_str(), iob->getMqtt().password.c_str()))
+     if (CanUseMqttSecure() && MQTT_Client.connect(req.nomModule.c_str(), login.c_str(), password.c_str()))
      {
           e.State(ConState::CONNECTED);
           countEchec = 0;
-          iob->setintervalConnect(intervalConnectSave);
+          setintervalConnect(intervalConnectSave);
           e.AddMessage("connecté avec login/password");
-          MQTT_Client.subscribe(iob->getMqtt().topicIn.c_str());
+          MQTT_Client.subscribe(topicIn.c_str());
           e.AddMessage("Ready , wait in/out message");
      }
-     else if (CanUseMqtt(iob) && MQTT_Client.connect(iob->getRequired().nomModule.c_str()))
+     else if (CanUseMqtt() && MQTT_Client.connect(req.nomModule.c_str()))
      {
           e.State(ConState::CONNECTED);
           countEchec = 0;
-          iob->setintervalConnect(intervalConnectSave);
+          setintervalConnect(intervalConnectSave);
           e.AddMessage("Connecté sans login/password");
-          MQTT_Client.subscribe(iob->getMqtt().topicIn.c_str());
+          MQTT_Client.subscribe(topicIn.c_str());
           e.AddMessage("Ready , wait in/out message");
      }
      else
@@ -56,54 +68,54 @@ void IOB_IOTMQTT::ReconnectMQTT(IOB_IOT *iob)
 
           if(countEchec == 5)
           {
-               intervalConnectSave = iob->getMqtt().intervalConnect;
-               iob->setintervalConnect(10000);
+               intervalConnectSave = intervalConnect;
+               setintervalConnect(10000);
           }
                 
 
           e.AddMessage("Erreur, rc= " + String(MQTT_Client.state()));
-          e.AddMessage("Prochaine tentative dans (ms) : " + String(iob->getMqtt().intervalConnect));
+          e.AddMessage("Prochaine tentative dans (ms) : " + String(intervalConnect));
      }
      mqtt_State_Changed_EventHandler.fire(e);
 }
 
-bool IOB_IOTMQTT::Sendata(IOB_IOT *iob, RelayState state)
+bool IOB_IOTMQTT::Sendata(RelayState state)
 {
+
+     Required req = ((IOB_IOT*)this)->getRequired();
      bool sendSuccess = false;
 
-     if(!CanSendMqtt(iob))
+     if(!CanSendMqtt())
           return false;
 
      String messJson;
-     if (iob->CreateJsonMessageForDomoticz(iob, state, messJson))
+     if (((IOB_IOT*)this)->CreateJsonMessageForDomoticz(state, messJson))
      {
-          IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::MQTT, messJson);
-          sendSuccess = MQTT_Client.publish(iob->getMqtt().topicOut.c_str(), messJson.c_str());
+          IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(req.idxDevice, state, SendProtole::MQTT, messJson);
+          sendSuccess = MQTT_Client.publish(topicOut.c_str(), messJson.c_str());
           e.AddMessage("Message envoyé à Domoticz en MQTT");
           mqtt_Send_EventHandler.fire(e);
      }
      return sendSuccess;
 }
 
-void IOB_IOTMQTT::LoopMqtt(IOB_IOT *iob)
+void IOB_IOTMQTT::Loop()
 {
      unsigned long currentMillis = millis();
-     if (!CanUseMqtt(iob))
+     if (!CanUseMqtt())
           return;
 
-     //IOB_IOT *iob = IOB_IOT::GetInstance();
-
-     if (!MQTT_Client.connected() && ((currentMillis - iob->getMqtt().previousMillis) >= iob->getMqtt().intervalConnect))
+     if (!MQTT_Client.connected() && ((currentMillis - previousMillis) >= intervalConnect))
      {
-          ReconnectMQTT(iob);
-          iob->setPreviousMillis(currentMillis);
+          ReconnectMQTT();
+          setPreviousMillis(currentMillis);
      }
      else if (MQTT_Client.connected())
      {
           MQTT_Client.loop();
-          if ((currentMillis - iob->getMqtt().previousMillis) >= iob->getMqtt().intervalConnect)
+          if ((currentMillis - previousMillis) >= intervalConnect)
           {
-               iob->setPreviousMillis(currentMillis);
+               setPreviousMillis(currentMillis);
           }
      }
 }
@@ -113,7 +125,7 @@ void IOB_IOTMQTT::LoopMqtt(IOB_IOT *iob)
 */
 void IOB_IOTMQTT::ParseMqttMessage(IOB_IOT *iob, char *topic, byte *message, unsigned int length)
 {
-     int valeur = strcmp(topic, iob->getMqtt().topicIn.c_str());
+     int valeur = strcmp(topic, iob->GetTopicIn().c_str());
      if (valeur != 0)
           return;
 

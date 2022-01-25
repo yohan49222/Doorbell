@@ -8,6 +8,6 @@ class IOB_IOT;
 class SharedFunction
 {
 public:
-     bool CreateJsonMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out);
+     bool CreateJsonMessageForDomoticz(RelayState state, String &out);
 };
 #endif

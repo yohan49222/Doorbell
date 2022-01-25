@@ -2,28 +2,43 @@
 #include "IOB_IOT.h"
 
 #ifdef USE_HTTP
-bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out)
+
+IOB_IOTHTTP::IOB_IOTHTTP() : IOB_IOTDomotic()
 {
+}
+
+IPAddress IOB_IOTHTTP::GetHttpIp()
+{
+     return ip;
+}
+
+bool IOB_IOTHTTP::CreateHttpMessageForDomoticz(RelayState state, String &out)
+{
+     Required req = ((IOB_IOT*)this)->getRequired();
      String url = "http://";
-     url += iob->getDomotic().ip.toString();
+     url += ip.toString();
      url += ":";
-     url += iob->getDomotic().port;
+     url += port;
      url += "/json.htm?type=command&param=switchlight&idx=";
-     url += iob->getRequired().idxDevice;
+     url += req.idxDevice;
      url += "&switchcmd=";
      url += RelayStateConverter::toString(state).c_str();
      out = url;
      return true;
 }
 
-bool IOB_IOTHTTP::Sendata(IOB_IOT *iob, RelayState state, WiFiClient &espClient)
+bool IOB_IOTHTTP::Sendata(RelayState state)
 {
      bool sendSuccess = false;
-     String url;
+     Required req = ((IOB_IOT*)this)->getRequired();
+     if(!ip.isSet() || req.idxDevice == 0)
+          return false;
 
-     if (CreateHttpMessageForDomoticz(iob, state, url))
+     String url;
+     if (CreateHttpMessageForDomoticz(state, url))
      {
-          IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(iob->getRequired().idxDevice, state, SendProtole::HTTP, url);
+          IOB_IOTMessageSendedEventArgs e = IOB_IOTMessageSendedEventArgs(req.idxDevice, state, SendProtole::HTTP, url);
+          WiFiClient espClient = ((IOB_IOT*)this)->espClient;
           httpClient.begin(espClient, url.c_str());
           int httpCode = 0;
           httpCode = httpClient.GET();

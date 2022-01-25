@@ -17,6 +17,21 @@ IOB_IOT::~IOB_IOT()
 }
 
 IOB_IOT::IOB_IOT() : IotConfig()
+#ifdef USE_WIFI
+    ,IOB_IOTWIFI()
+#ifdef USE_OTA
+    ,IOB_IOTOTA()
+#endif /* USE_OTA */
+#ifdef USE_MQTT
+    ,IOB_IOTMQTT()
+#endif /* USE_MQTT */
+#ifdef USE_WEBSERVER
+    ,IOB_IOTWEBSERVER()
+#endif /* USE_WEBSERVER */
+#ifdef USE_HTTP
+    ,IOB_IOTHTTP()
+#endif /* USE_HTTP */
+#endif /* USE_WIFI */
 {
 
 }
@@ -45,17 +60,17 @@ void IOB_IOT::Run()
 #ifdef USE_WIFI
 
 #ifdef USE_OTA
-     IOB_IOTOTA::init(this);
+     //IOB_IOTOTA::init(this);
 #endif
 
-     IOB_IOTWIFI::Begin(this);
+     //IOB_IOTWIFI::Begin(this);
 
 #ifdef USE_WEBSERVER
-     IOB_IOTWEBSERVER::init(this);
+     //IOB_IOTWEBSERVER::init(this);
 #endif
 
 #ifdef USE_MQTT
-     IOB_IOTMQTT::init(this);
+     //IOB_IOTMQTT::init(this);
 #endif
 
 #endif /* USE_WIFI */
@@ -84,12 +99,12 @@ void IOB_IOT::Loop()
 
 #ifdef USE_WIFI
 
-     bool connected = IOB_IOTWIFI::Loop(this);
+     bool connected = IOB_IOTWIFI::Loop();
      if(!connected)
           return; /** break loop */
 
 #ifdef USE_MQTT
-          LoopMqtt(this);
+          IOB_IOTMQTT::Loop();
 #endif
 
 #ifdef USE_OTA
@@ -97,7 +112,7 @@ void IOB_IOT::Loop()
 #endif /* USE_OTA */
 
 #ifdef USE_WEBSERVER
-          IOB_IOTWEBSERVER::Loop(this);
+          IOB_IOTWEBSERVER::Loop();
 #endif /* USE_WEBSERVER */
 
 #ifdef USE_OTA
@@ -182,15 +197,15 @@ void IOB_IOT::SendData(RelayState state)
 #ifdef USE_MQTT
      if (WiFi.isConnected())
      {
-          sendSuccess = IOB_IOTMQTT::Sendata(this, state);
+          sendSuccess = IOB_IOTMQTT::Sendata(state);
           return;
      }
 #endif /* USE MQTT */
 
 #ifdef USE_HTTP
-     if (!sendSuccess && getDomotic().ip.isSet() && getRequired().idxDevice > 0)
+     if (!sendSuccess)
      {
-          sendSuccess = IOB_IOTHTTP::Sendata(this, state, espClient);
+          sendSuccess = IOB_IOTHTTP::Sendata(state);
      }
 #endif /* USE HTTP */
 #endif

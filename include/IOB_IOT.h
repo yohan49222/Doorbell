@@ -35,18 +35,18 @@
 class IOB_IOT : public SharedFunction, public IotConfig 
 #ifdef USE_WIFI
     ,private IOB_IOTWIFI
-#ifdef USE_HTTP
-    ,private IOB_IOTHTTP
-#endif /* USE_HTTP */
-#ifdef USE_MQTT
-    ,private IOB_IOTMQTT
-#endif /* USE_MQTT */
 #ifdef USE_OTA
     ,private IOB_IOTOTA
 #endif /* USE_OTA */
+#ifdef USE_MQTT
+    ,private IOB_IOTMQTT
+#endif /* USE_MQTT */
 #ifdef USE_WEBSERVER
     ,private IOB_IOTWEBSERVER
 #endif /* USE_WEBSERVER */
+#ifdef USE_HTTP
+    ,private IOB_IOTHTTP
+#endif /* USE_HTTP */
 #endif /* USE_WIFI */
 {
 
@@ -56,34 +56,25 @@ public:
 
      using IOB_IOTWIFI::espClient;
      using IOB_IOTWIFI::wifiStateChangedEventHandler;
-     //using IOB_IOTWIFI::Begin;
-     //using IOB_IOTWIFI::Loop;
 
 #ifdef USE_OTA
-     using IOB_IOTOTA::init;
+     //using IOB_IOTOTA::init;
 #endif /* USE_OTA */
 
 #ifdef USE_MQTT
 
-     //using IOB_IOTMQTT::CanSendMqtt;
-     //using IOB_IOTMQTT::CanUseMqtt;
-     //using IOB_IOTMQTT::CanUseMqttSecure;
-     //using IOB_IOTMQTT::init;
-     //using IOB_IOTMQTT::LoopMqtt;
      using IOB_IOTMQTT::mqtt_Recep_EventHandler;
      using IOB_IOTMQTT::mqtt_Send_EventHandler;
      using IOB_IOTMQTT::mqtt_State_Changed_EventHandler;
      using IOB_IOTMQTT::ParseMqttMessage; //static
-     //using IOB_IOTMQTT::ReconnectMQTT;
-     //using IOB_IOTMQTT::Sendata;
+     using IOB_IOTMQTT::GetTopicIn; // required by static methode IOB_IOTMQTT::ParseMqttMessage
+     using IOB_IOTMQTT::GetMqttIp;
 
 #endif /* USE_MQTT */
 
 #ifdef USE_HTTP
-
-     //using IOB_IOTHTTP::CreateHttpMessageForDomoticz;
      using IOB_IOTHTTP::http_Send_EventHandler;
-     //using IOB_IOTHTTP::Sendata;
+     using IOB_IOTHTTP::GetHttpIp;
 
 #endif /* USE_HTTP */
 
@@ -93,8 +84,6 @@ public:
 
 #ifdef USE_WEBSERVER
      using IOB_IOTWEBSERVER::CreateJsonMessageForDebug; //static
-     //using IOB_IOTWEBSERVER::init;
-     //using IOB_IOTWEBSERVER::Loop;
      using IOB_IOTWEBSERVER::webServer;
      using IOB_IOTWEBSERVER::webServer_Request_EventHandler;
      using IOB_IOTWEBSERVER::webServer_Response_EventHandler;

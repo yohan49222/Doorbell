@@ -1,15 +1,15 @@
 #include "IOB_IOT/SHARE/SharedFunction.h"
 #include "IOB_IOT.h"
 
-bool SharedFunction::CreateJsonMessageForDomoticz(IOB_IOT *iob, RelayState state, String &out)
+bool SharedFunction::CreateJsonMessageForDomoticz(RelayState state, String &out)
 {
-
+     Required req = ((IOB_IOT*)this)->getRequired();
      StaticJsonBuffer<256> jsonBuffer;
      JsonObject &root = jsonBuffer.createObject();
 
      // assigantion des variables.
      root["command"] = "switchlight";
-     root["idx"] = iob->getRequired().idxDevice;
+     root["idx"] = req.idxDevice;
      root["switchcmd"] = RelayStateConverter::toString(state);
 
      String messageOut;
